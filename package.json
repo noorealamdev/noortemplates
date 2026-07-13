@@ -1,0 +1,19 @@
+{
+	"name": "noorblocks",
+	"version": "1.0.0",
+	"description": "A powerful Gutenberg blocks and patterns library built with a modern OOP architecture.",
+	"author": "Noore Alam",
+	"license": "GPL-2.0-or-later",
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"lint:js": "wp-scripts lint-js",
+		"lint:css": "wp-scripts lint-style",
+		"format": "wp-scripts format",
+		"packages-update": "wp-scripts packages-update"
+	},
+	"devDependencies": {
+		"@wordpress/icons": "^15.1.0",
+		"@wordpress/scripts": "^30.0.0"
+	}
+}

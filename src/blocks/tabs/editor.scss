@@ -1,0 +1,15 @@
+.wp-block-noorblocks-tabs {
+
+	.noorblocks-tabs__tab {
+		cursor: pointer;
+	}
+
+	.noorblocks-tabs__add.components-button {
+		align-self: center;
+	}
+
+	// Only the active tab panel is visible while editing.
+	.wp-block-noorblocks-tab:not(.is-active) {
+		display: none;
+	}
+}

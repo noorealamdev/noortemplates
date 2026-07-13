@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "noorblocks/tab",
+	"title": "Tab",
+	"category": "noorblocks",
+	"icon": "table-row-after",
+	"description": "A single tab panel inside a Tabs block.",
+	"keywords": [ "tab", "panel" ],
+	"version": "1.0.0",
+	"textdomain": "noorblocks",
+	"parent": [ "noorblocks/tabs" ],
+	"attributes": {
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"uid": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"interactivity": true,
+		"reusable": false
+	},
+	"editorScript": "file:./index.js"
+}

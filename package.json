@@ -12,8 +12,8 @@
 		"build"
 	],
 	"scripts": {
-		"build": "wp-scripts build",
-		"start": "wp-scripts start",
+		"build": "wp-scripts build --experimental-modules --webpack-copy-php",
+		"start": "wp-scripts start --experimental-modules --webpack-copy-php",
 		"lint:js": "wp-scripts lint-js",
 		"lint:css": "wp-scripts lint-style",
 		"format": "wp-scripts format",
@@ -23,7 +23,9 @@
 	},
 	"devDependencies": {
 		"@wordpress/icons": "^15.1.0",
+		"@wordpress/interactivity": "^6.50.0",
 		"@wordpress/scripts": "^30.0.0",
+		"@wordpress/server-side-render": "^6.26.0",
 		"typescript": "~5.8.0"
 	}
 }

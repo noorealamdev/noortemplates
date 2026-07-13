@@ -1,0 +1,50 @@
+.wp-block-noorblocks-accordion {
+
+	.wp-block-noorblocks-accordion-item {
+		overflow: hidden;
+		border: 1px solid #e0e0e0;
+		border-radius: 4px;
+
+		+ .wp-block-noorblocks-accordion-item {
+			margin-top: 8px;
+		}
+	}
+
+	.noorblocks-accordion__heading {
+		margin: 0;
+		font-size: inherit;
+	}
+
+	.noorblocks-accordion__toggle {
+		display: flex;
+		gap: 12px;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 14px 16px;
+		background: none;
+		border: 0;
+		color: inherit;
+		cursor: pointer;
+		font: inherit;
+		font-weight: 600;
+		text-align: left;
+	}
+
+	.noorblocks-accordion__icon::before {
+		content: "+";
+		display: inline-block;
+		font-size: 1.25em;
+		font-weight: 400;
+		line-height: 1;
+		transition: transform 0.2s ease-in-out;
+	}
+
+	.noorblocks-accordion__toggle.is-open .noorblocks-accordion__icon::before {
+		transform: rotate(45deg);
+	}
+
+	.noorblocks-accordion__panel {
+		padding: 0 16px 16px;
+	}
+}

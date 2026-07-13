@@ -9,6 +9,7 @@ namespace NoorBlocks;
 
 use NoorBlocks\Traits\Singleton;
 use NoorBlocks\Blocks\Manager as Blocks_Manager;
+use NoorBlocks\Blocks\Interactivity;
 use NoorBlocks\Patterns\Manager as Patterns_Manager;
 use NoorBlocks\Assets\Manager as Assets_Manager;
 use NoorBlocks\Rest\Templates_Controller;
@@ -41,6 +42,7 @@ class Plugin {
 		Install::init();
 
 		Blocks_Manager::instance();
+		Interactivity::instance();
 		Patterns_Manager::instance();
 		Assets_Manager::instance();
 		Templates_Controller::instance();

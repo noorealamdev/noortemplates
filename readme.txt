@@ -1,8 +1,8 @@
 === NoorBlocks ===
 Contributors: noorealam
 Tags: blocks, gutenberg, patterns, page builder
-Requires at least: 6.4
-Tested up to: 6.8
+Requires at least: 6.5
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -17,8 +17,11 @@ NoorBlocks extends the WordPress block editor with a library of advanced blocks 
 * Container — a flexible layout wrapper with full color, spacing and layout controls
 * Advanced Heading — heading level, alignment, colors and typography
 * Advanced Button — customizable call-to-action button
+* Accordion — collapsible FAQ-style panels powered by the WordPress Interactivity API
+* Tabs — switchable tabbed content with full keyboard support
+* Post Grid — a dynamic, always-up-to-date grid of your latest posts
 
-Blocks can be individually enabled or disabled from the NoorBlocks dashboard.
+Blocks can be individually enabled or disabled from the NoorBlocks dashboard, and the editor Template Library inserts complete sections and page layouts in one click.
 
 == Installation ==
 

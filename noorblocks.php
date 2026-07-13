@@ -4,7 +4,7 @@
  * Plugin URI:        https://noorblocks.com
  * Description:       A powerful Gutenberg blocks and patterns library built with a modern OOP architecture.
  * Version:           1.0.0
- * Requires at least: 6.4
+ * Requires at least: 6.5
  * Requires PHP:      7.4
  * Author:            Noore Alam
  * License:           GPL-2.0-or-later

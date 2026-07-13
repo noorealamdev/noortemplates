@@ -102,7 +102,7 @@ class Manager {
 			return array();
 		}
 
-		$metadata = json_decode( (string) file_get_contents( $file ), true );
+		$metadata = wp_json_file_decode( $file, array( 'associative' => true ) );
 
 		return is_array( $metadata ) ? $metadata : array();
 	}

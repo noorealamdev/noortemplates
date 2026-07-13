@@ -33,15 +33,15 @@ class Autoloader {
 	/**
 	 * Loads the file for a given fully qualified class name.
 	 *
-	 * @param string $class Fully qualified class name.
+	 * @param string $class_name Fully qualified class name.
 	 * @return void
 	 */
-	public static function autoload( $class ) {
-		if ( 0 !== strpos( $class, self::PREFIX ) ) {
+	public static function autoload( $class_name ) {
+		if ( 0 !== strpos( $class_name, self::PREFIX ) ) {
 			return;
 		}
 
-		$relative = substr( $class, strlen( self::PREFIX ) );
+		$relative = substr( $class_name, strlen( self::PREFIX ) );
 		$path     = NOORBLOCKS_DIR . 'includes/' . str_replace( '\\', '/', $relative ) . '.php';
 
 		if ( is_readable( $path ) ) {

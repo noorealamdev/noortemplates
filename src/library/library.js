@@ -1,10 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import {
-	useState,
-	useEffect,
-	useMemo,
-	createPortal,
-} from '@wordpress/element';
+import { useState, useEffect, useMemo, createPortal } from '@wordpress/element';
 import { Button, Modal, TabPanel } from '@wordpress/components';
 import { parse, cloneBlock } from '@wordpress/blocks';
 import { useDispatch, select } from '@wordpress/data';
@@ -14,9 +9,7 @@ import { layout } from '@wordpress/icons';
 const TEMPLATES =
 	( window.noorBlocksLibrary && window.noorBlocksLibrary.templates ) || [];
 
-/**
- * Renders children into a container appended to the editor header toolbar.
- */
+// Renders children into a container appended to the editor header toolbar.
 function ToolbarPortal( { children } ) {
 	const [ container, setContainer ] = useState( null );
 
@@ -42,9 +35,7 @@ function ToolbarPortal( { children } ) {
 	return container ? createPortal( children, container ) : null;
 }
 
-/**
- * A single template card with a live block preview.
- */
+// A single template card with a live block preview.
 function TemplateCard( { template, onSelect } ) {
 	const blocks = useMemo(
 		() => parse( template.content ),
@@ -100,23 +91,24 @@ export default function Library() {
 	const { resetBlocks, insertBlocks } = useDispatch( 'core/block-editor' );
 
 	const applyTemplate = ( template, blocks ) => {
+		if (
+			template.type === 'page' &&
+			! isPostEmpty() &&
+			// eslint-disable-next-line no-alert
+			! window.confirm(
+				__(
+					'This will replace the current page content. Continue?',
+					'noorblocks'
+				)
+			)
+		) {
+			return;
+		}
+
 		// Clone so inserting the same template twice never reuses client ids.
 		const toInsert = blocks.map( ( block ) => cloneBlock( block ) );
 
 		if ( template.type === 'page' ) {
-			if (
-				! isPostEmpty() &&
-				// eslint-disable-next-line no-alert
-				! window.confirm(
-					__(
-						'This will replace the current page content. Continue?',
-						'noorblocks'
-					)
-				)
-			) {
-				return;
-			}
-
 			resetBlocks( toInsert );
 		} else {
 			insertBlocks( toInsert );

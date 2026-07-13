@@ -37,7 +37,15 @@ class Manager {
 	 * @return void
 	 */
 	public function register_blocks() {
-		$disabled = (array) get_option( self::DISABLED_OPTION, array() );
+		/**
+		 * Filters the disabled block names.
+		 *
+		 * @param string[] $disabled Block names that will not be registered.
+		 */
+		$disabled = (array) apply_filters(
+			'noorblocks/disabled_blocks',
+			(array) get_option( self::DISABLED_OPTION, array() )
+		);
 
 		foreach ( $this->get_block_dirs() as $dir ) {
 			$metadata = $this->get_block_metadata( $dir );
@@ -78,8 +86,18 @@ class Manager {
 		$dirs = glob( NOORBLOCKS_DIR . 'build/blocks/*', GLOB_ONLYDIR );
 
 		if ( ! is_array( $dirs ) ) {
-			return array();
+			$dirs = array();
 		}
+
+		/**
+		 * Filters the block directories to register.
+		 *
+		 * Add-ons can append their own build directories; every directory
+		 * must contain a block.json file.
+		 *
+		 * @param string[] $dirs Absolute block directory paths.
+		 */
+		$dirs = (array) apply_filters( 'noorblocks/block_dirs', $dirs );
 
 		return array_filter(
 			$dirs,

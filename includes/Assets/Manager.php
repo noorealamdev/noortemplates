@@ -8,7 +8,6 @@
 namespace NoorBlocks\Assets;
 
 use NoorBlocks\Traits\Singleton;
-use NoorBlocks\Patterns\Manager as Patterns_Manager;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -50,14 +49,6 @@ class Manager {
 			$asset['dependencies'],
 			$asset['version'],
 			true
-		);
-
-		wp_localize_script(
-			'noorblocks-library',
-			'noorBlocksLibrary',
-			array(
-				'templates' => Patterns_Manager::instance()->get_library_templates(),
-			)
 		);
 
 		$style = NOORBLOCKS_DIR . 'build/library/index.css';

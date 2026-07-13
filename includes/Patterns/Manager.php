@@ -51,11 +51,21 @@ class Manager {
 	 * @return array<string, string>
 	 */
 	private function get_pattern_dirs() {
-		return array(
+		$dirs = array(
 			NOORBLOCKS_DIR . 'patterns'          => 'noorblocks',
 			NOORBLOCKS_DIR . 'patterns/sections' => 'noorblocks-sections',
 			NOORBLOCKS_DIR . 'patterns/pages'    => 'noorblocks-pages',
 		);
+
+		/**
+		 * Filters the pattern directories to register.
+		 *
+		 * Keys are absolute directory paths, values the default pattern
+		 * category slug for files in that directory.
+		 *
+		 * @param array<string, string> $dirs Pattern directories.
+		 */
+		return (array) apply_filters( 'noorblocks/pattern_dirs', $dirs );
 	}
 
 	/**

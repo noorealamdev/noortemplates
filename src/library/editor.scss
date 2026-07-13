@@ -11,6 +11,12 @@
 	}
 }
 
+.noorblocks-library__loading {
+	display: flex;
+	justify-content: center;
+	padding: 64px 0;
+}
+
 .noorblocks-library__grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));

@@ -19,6 +19,13 @@
 		<exclude name="WordPress.Files.FileName"/>
 	</rule>
 
+	<!-- Hook names use a slash-delimited namespace: noorblocks/hook_name. -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<properties>
+			<property name="additionalWordDelimiters" value="/"/>
+		</properties>
+	</rule>
+
 	<!-- Verify that everything is prefixed and the correct text domain is used. -->
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>

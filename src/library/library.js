@@ -1,13 +1,17 @@
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useMemo, createPortal } from '@wordpress/element';
-import { Button, Modal, TabPanel } from '@wordpress/components';
+import {
+	Button,
+	Modal,
+	TabPanel,
+	Spinner,
+	Notice,
+} from '@wordpress/components';
 import { parse, cloneBlock } from '@wordpress/blocks';
 import { useDispatch, select } from '@wordpress/data';
 import { BlockPreview } from '@wordpress/block-editor';
 import { layout } from '@wordpress/icons';
-
-const TEMPLATES =
-	( window.noorBlocksLibrary && window.noorBlocksLibrary.templates ) || [];
+import apiFetch from '@wordpress/api-fetch';
 
 // Renders children into a container appended to the editor header toolbar.
 function ToolbarPortal( { children } ) {
@@ -88,7 +92,24 @@ function isPostEmpty() {
  */
 export default function Library() {
 	const [ isOpen, setOpen ] = useState( false );
+	const [ templates, setTemplates ] = useState( null );
+	const [ hasError, setHasError ] = useState( false );
 	const { resetBlocks, insertBlocks } = useDispatch( 'core/block-editor' );
+
+	// Load templates from the REST API the first time the modal opens.
+	useEffect( () => {
+		if ( ! isOpen || templates ) {
+			return;
+		}
+
+		setHasError( false );
+
+		apiFetch( { path: '/noorblocks/v1/templates' } )
+			.then( ( result ) =>
+				setTemplates( Array.isArray( result ) ? result : [] )
+			)
+			.catch( () => setHasError( true ) );
+	}, [ isOpen, templates ] );
 
 	const applyTemplate = ( template, blocks ) => {
 		if (
@@ -122,6 +143,47 @@ export default function Library() {
 		{ name: 'section', title: __( 'Sections', 'noorblocks' ) },
 	];
 
+	const renderContent = () => {
+		if ( hasError ) {
+			return (
+				<Notice status="error" isDismissible={ false }>
+					{ __(
+						'The template library could not be loaded. Please try again.',
+						'noorblocks'
+					) }
+				</Notice>
+			);
+		}
+
+		if ( ! templates ) {
+			return (
+				<div className="noorblocks-library__loading">
+					<Spinner />
+				</div>
+			);
+		}
+
+		return (
+			<TabPanel className="noorblocks-library__tabs" tabs={ tabs }>
+				{ ( tab ) => (
+					<div className="noorblocks-library__grid">
+						{ templates
+							.filter(
+								( template ) => template.type === tab.name
+							)
+							.map( ( template ) => (
+								<TemplateCard
+									key={ template.name }
+									template={ template }
+									onSelect={ applyTemplate }
+								/>
+							) ) }
+					</div>
+				) }
+			</TabPanel>
+		);
+	};
+
 	return (
 		<>
 			<ToolbarPortal>
@@ -142,24 +204,7 @@ export default function Library() {
 					className="noorblocks-library__modal"
 					isFullScreen
 				>
-					<TabPanel
-						className="noorblocks-library__tabs"
-						tabs={ tabs }
-					>
-						{ ( tab ) => (
-							<div className="noorblocks-library__grid">
-								{ TEMPLATES.filter(
-									( template ) => template.type === tab.name
-								).map( ( template ) => (
-									<TemplateCard
-										key={ template.name }
-										template={ template }
-										onSelect={ applyTemplate }
-									/>
-								) ) }
-							</div>
-						) }
-					</TabPanel>
+					{ renderContent() }
 				</Modal>
 			) }
 		</>

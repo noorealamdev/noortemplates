@@ -28,6 +28,10 @@ define( 'NOORBLOCKS_BASENAME', plugin_basename( __FILE__ ) );
 require_once NOORBLOCKS_DIR . 'includes/Autoloader.php';
 \NoorBlocks\Autoloader::register();
 
+// Lifecycle hooks.
+register_activation_hook( __FILE__, array( '\NoorBlocks\Install', 'activate' ) );
+register_deactivation_hook( __FILE__, array( '\NoorBlocks\Install', 'deactivate' ) );
+
 /**
  * Returns the main plugin instance.
  *

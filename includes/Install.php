@@ -2,12 +2,12 @@
 /**
  * Install, upgrade and deactivation routines.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks;
+namespace NoorTemplates;
 
-use NoorBlocks\Templates\Repository;
+use NoorTemplates\Templates\Repository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -19,7 +19,7 @@ class Install {
 	/**
 	 * Option storing the version the database was last migrated to.
 	 */
-	const VERSION_OPTION = 'noorblocks_version';
+	const VERSION_OPTION = 'noortemplates_version';
 
 	/**
 	 * Hooks the upgrade check.
@@ -56,7 +56,7 @@ class Install {
 	public static function maybe_upgrade() {
 		$installed = (string) get_option( self::VERSION_OPTION, '' );
 
-		if ( NOORBLOCKS_VERSION === $installed ) {
+		if ( NOORTEMPLATES_VERSION === $installed ) {
 			return;
 		}
 
@@ -66,14 +66,14 @@ class Install {
 			}
 		}
 
-		update_option( self::VERSION_OPTION, NOORBLOCKS_VERSION );
+		update_option( self::VERSION_OPTION, NOORTEMPLATES_VERSION );
 
 		/**
 		 * Fires after the plugin migrated to a new version.
 		 *
 		 * @param string $installed Previous version, empty on first install.
 		 */
-		do_action( 'noorblocks/upgraded', $installed );
+		do_action( 'noortemplates/upgraded', $installed );
 	}
 
 	/**

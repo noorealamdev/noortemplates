@@ -1,15 +1,15 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "noorblocks/tab",
+	"name": "noortemplates/tab",
 	"title": "Tab",
-	"category": "noorblocks",
+	"category": "noortemplates",
 	"icon": "table-row-after",
 	"description": "A single tab panel inside a Tabs block.",
 	"keywords": [ "tab", "panel" ],
 	"version": "1.0.0",
-	"textdomain": "noorblocks",
-	"parent": [ "noorblocks/tabs" ],
+	"textdomain": "noortemplates",
+	"parent": [ "noortemplates/tabs" ],
 	"attributes": {
 		"title": {
 			"type": "string",
@@ -24,7 +24,25 @@
 		"anchor": true,
 		"html": false,
 		"interactivity": true,
-		"reusable": false
+		"reusable": false,
+		"color": {
+			"background": true,
+			"text": true,
+			"gradients": true
+		},
+		"typography": {
+			"fontSize": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"__experimentalBorder": {
+			"radius": true,
+			"width": true,
+			"color": true
+		},
+		"shadow": true
 	},
 	"editorScript": "file:./index.js"
 }

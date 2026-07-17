@@ -2,20 +2,20 @@
 /**
  * Bundled template source.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks\Templates\Sources;
+namespace NoorTemplates\Templates\Sources;
 
-use NoorBlocks\Templates\Source;
-use NoorBlocks\Patterns\Manager as Patterns_Manager;
+use NoorTemplates\Templates\Lazy_Source;
+use NoorTemplates\Patterns\Manager as Patterns_Manager;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Provides the templates bundled with the plugin in the patterns directory.
  */
-class Local_Source implements Source {
+class Local_Source implements Lazy_Source {
 
 	/**
 	 * Returns the source identifier.
@@ -27,11 +27,30 @@ class Local_Source implements Source {
 	}
 
 	/**
-	 * Returns the bundled templates.
+	 * Returns the bundled templates, as lightweight metadata.
 	 *
 	 * @return array[]
 	 */
 	public function get_templates() {
 		return Patterns_Manager::instance()->get_library_templates();
+	}
+
+	/**
+	 * Returns a single bundled template with its full content.
+	 *
+	 * @param string $name Template slug.
+	 * @return array|null
+	 */
+	public function get_template( $name ) {
+		return Patterns_Manager::instance()->get_template( $name );
+	}
+
+	/**
+	 * Flushes the bundled pattern cache.
+	 *
+	 * @return void
+	 */
+	public function flush_cache() {
+		Patterns_Manager::instance()->flush_cache();
 	}
 }

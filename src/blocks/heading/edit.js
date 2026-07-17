@@ -33,9 +33,9 @@ export default function Edit( { attributes, setAttributes } ) {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Heading Settings', 'noorblocks' ) }>
+				<PanelBody title={ __( 'Heading Settings', 'noortemplates' ) }>
 					<SelectControl
-						label={ __( 'Heading Level', 'noorblocks' ) }
+						label={ __( 'Heading Level', 'noortemplates' ) }
 						value={ level }
 						options={ LEVEL_OPTIONS }
 						onChange={ ( value ) =>
@@ -50,7 +50,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				tagName={ TagName }
 				value={ content }
 				onChange={ ( value ) => setAttributes( { content: value } ) }
-				placeholder={ __( 'Add heading…', 'noorblocks' ) }
+				placeholder={ __( 'Add heading…', 'noortemplates' ) }
 			/>
 		</>
 	);

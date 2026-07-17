@@ -1,0 +1,15 @@
+.wp-block-noortemplates-faq {
+
+	// Own scoped title class rather than borrowing the Heading block's
+	// class — a block's style.css only loads when that block type is
+	// actually present on the page, so relying on Heading's CSS for this
+	// unrelated block's title would silently stop working on any page
+	// that doesn't also happen to use a Heading block elsewhere.
+	.noortemplates-faq__title {
+		text-align: center;
+	}
+
+	.noortemplates-faq__accordion {
+		margin-top: 1.5rem;
+	}
+}

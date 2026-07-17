@@ -4,7 +4,7 @@ export default function save( { attributes } ) {
 	const { allowMultiple } = attributes;
 
 	const blockProps = useBlockProps.save( {
-		'data-wp-interactive': 'noorblocks/accordion',
+		'data-wp-interactive': 'noortemplates/accordion',
 		'data-wp-context': JSON.stringify( {
 			open: { ids: [] },
 			allowMultiple,

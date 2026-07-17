@@ -1,20 +1,20 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "noorblocks/accordion-item",
+	"name": "noortemplates/accordion-item",
 	"title": "Accordion Item",
-	"category": "noorblocks",
+	"category": "noortemplates",
 	"icon": "menu-alt",
 	"description": "A single collapsible panel inside an Accordion.",
 	"keywords": [ "accordion", "item", "panel" ],
 	"version": "1.0.0",
-	"textdomain": "noorblocks",
-	"parent": [ "noorblocks/accordion" ],
+	"textdomain": "noortemplates",
+	"parent": [ "noortemplates/accordion" ],
 	"attributes": {
 		"title": {
 			"type": "string",
 			"source": "html",
-			"selector": ".noorblocks-accordion__title",
+			"selector": ".noortemplates-accordion__title",
 			"default": ""
 		},
 		"uid": {
@@ -26,7 +26,25 @@
 		"anchor": true,
 		"html": false,
 		"interactivity": true,
-		"reusable": false
+		"reusable": false,
+		"color": {
+			"background": true,
+			"text": true,
+			"gradients": true
+		},
+		"typography": {
+			"fontSize": true
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"__experimentalBorder": {
+			"radius": true,
+			"width": true,
+			"color": true
+		},
+		"shadow": true
 	},
 	"editorScript": "file:./index.js"
 }

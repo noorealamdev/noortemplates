@@ -1,6 +1,6 @@
 {
-	"name": "noorealam/noorblocks",
-	"description": "A powerful Gutenberg blocks and patterns library built with a modern OOP architecture.",
+	"name": "noorealam/noortemplates",
+	"description": "A WooCommerce product page builder: blocks, layouts and templates for the single product page.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"authors": [

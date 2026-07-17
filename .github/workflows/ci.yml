@@ -69,5 +69,5 @@ jobs:
       - name: Upload installable zip
         uses: actions/upload-artifact@v4
         with:
-          name: noorblocks
-          path: noorblocks.zip
+          name: noortemplates
+          path: noortemplates.zip

@@ -1,0 +1,280 @@
+// Styles WooCommerce's own tab/review/additional-information markup
+// (this block is a thin wrapper around woocommerce_output_product_data_tabs()
+// and intentionally renders no markup of its own to style against).
+.wp-block-noortemplates-product-tabs {
+
+	.woocommerce-tabs {
+		margin-top: 1rem;
+	}
+
+	// The block's own Font Size/Font Weight (Typography panel) apply as an
+	// inline style on this wrapper element — WordPress's typography support
+	// has no per-selector redirect the way border/color do, so it always
+	// lands here and inherits to everything inside. These resets opt the
+	// tab CONTENT back out to a normal baseline, so only the tab nav labels
+	// above (which have no font-size/weight of their own) actually reflect
+	// the block's setting; anything with its own explicit value elsewhere
+	// in this file (e.g. table th, review author, #submit) is unaffected.
+	.woocommerce-Tabs-panel,
+	table.shop_attributes,
+	#reviews.woocommerce-Reviews,
+	#review_form_wrapper {
+		font-size: 1rem;
+		font-weight: 400;
+	}
+
+	// Tab navigation — rounded "folder tab" style: a light gray bar with
+	// the active tab popping up as a white rounded card, its background
+	// covering the bar's own bottom border right where it sits so the
+	// divider line reads as "broken" under the selected tab.
+	ul.tabs.wc-tabs {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 4px;
+		padding: 6px 6px 0;
+		margin: 0 0 2rem;
+		list-style: none;
+		background: #f4f4f5;
+		border-radius: 14px 14px 0 0;
+		border-bottom: 1px solid #e5e5e6;
+
+		li {
+			position: relative;
+			margin: 0;
+			padding: 0;
+
+			a {
+				display: block;
+				padding: 10px 20px;
+				border-radius: 10px 10px 0 0;
+				// Not a fixed weight: inherits whatever the block's own
+				// Font Weight setting (Typography panel) resolves to.
+				color: inherit;
+				text-decoration: none;
+				transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+
+				&:hover {
+					background: rgba(0, 0, 0, 0.04);
+				}
+			}
+
+			// The active tab always reads as the same accent blue,
+			// regardless of the block's own Text Color setting — like a
+			// browser tab, its color is a selection indicator, not part of
+			// the customizable body content.
+			&.active a {
+				position: relative;
+				z-index: 1;
+				margin-bottom: -1px;
+				padding-bottom: 11px;
+				background: #fff;
+				color: #2c6ecb;
+
+				&:hover {
+					background: #fff;
+				}
+			}
+		}
+
+		// Matches the mobile breakpoint used throughout the plugin (the
+		// Visibility feature and the custom Tabs block). Only padding
+		// shrinks here — font-size is intentionally left alone so the
+		// block's own Font Size setting (and its automatic fluid mobile
+		// scaling) keeps working instead of being overridden.
+		@media (max-width: 599px) {
+
+			li a {
+				padding: 8px 14px;
+			}
+
+			li.active a {
+				padding-bottom: 9px;
+			}
+		}
+	}
+
+	// Tab panels.
+	.woocommerce-Tabs-panel {
+		max-width: 100%;
+		line-height: 1.7;
+
+		p {
+			margin: 0 0 1.25rem;
+		}
+	}
+
+	// Additional Information table. `display: block` on the table itself
+	// (rows/cells keep their normal table layout) lets it scroll
+	// horizontally instead of squeezing illegibly or overflowing the page
+	// on narrow screens.
+	table.shop_attributes {
+		display: block;
+		width: 100%;
+		max-width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		border-collapse: collapse;
+
+		th,
+		td {
+			padding: 0.75rem 1rem;
+			text-align: left;
+			border-bottom: 1px solid #eee;
+		}
+
+		th {
+			width: 35%;
+			font-weight: 600;
+		}
+
+		tr:nth-child(odd) {
+			background: #f9fafb;
+		}
+	}
+
+	// Reviews.
+	#reviews.woocommerce-Reviews {
+		max-width: 100%;
+
+		.woocommerce-Reviews-title {
+			margin: 0 0 1.5rem;
+			font-size: 1.25rem;
+		}
+	}
+
+	ol.commentlist {
+		padding: 0;
+		margin: 0 0 2.5rem;
+		list-style: none;
+
+		li.comment {
+			padding: 1.5rem;
+			margin: 0 0 1rem;
+			background: #fff;
+			border: 1px solid #eee;
+			border-radius: 8px;
+
+			@media (max-width: 599px) {
+				padding: 1rem;
+			}
+		}
+
+		.comment_container {
+			display: flex;
+			gap: 1rem;
+			align-items: flex-start;
+		}
+
+		img.avatar {
+			flex-shrink: 0;
+			width: 48px;
+			height: 48px;
+			border-radius: 50%;
+		}
+
+		.comment-text {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.star-rating {
+			margin: 0 0 0.35rem;
+		}
+
+		p.meta {
+			margin: 0 0 0.5rem;
+			font-size: 0.85rem;
+			color: #757575;
+
+			strong.woocommerce-review__author {
+				display: inline-block;
+				margin-right: 0.5rem;
+				font-size: 0.95rem;
+				color: inherit;
+				font-weight: 600;
+			}
+		}
+
+		.description p {
+			margin: 0;
+			line-height: 1.6;
+		}
+	}
+
+	// "Add a review" form.
+	#review_form_wrapper {
+		padding: 1.75rem;
+		background: #f9fafb;
+		border: 1px solid #eee;
+		border-radius: 8px;
+
+		@media (max-width: 599px) {
+			padding: 1.25rem;
+		}
+
+		#reply-title {
+			margin: 0 0 1.25rem;
+			font-size: 1.15rem;
+		}
+
+		.comment-form-rating,
+		.comment-form-comment,
+		.comment-form-author,
+		.comment-form-email {
+			display: block;
+			margin: 0 0 1.25rem;
+
+			label {
+				display: block;
+				margin: 0 0 0.4rem;
+				font-weight: 600;
+			}
+		}
+
+		textarea,
+		input[type='text'],
+		input[type='email'] {
+			box-sizing: border-box;
+			width: 100%;
+			max-width: 32em;
+			padding: 0.65rem 0.85rem;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			font: inherit;
+			transition: border-color 0.15s ease-in-out;
+
+			&:focus {
+				border-color: #2c6ecb;
+				outline: none;
+			}
+		}
+
+		textarea {
+			max-width: 100%;
+			min-height: 8em;
+		}
+
+		.form-submit {
+			margin: 0;
+		}
+
+		#submit {
+			display: inline-block;
+			padding: 0.65em 1.6em;
+			background-color: #2c6ecb;
+			border: 0;
+			border-radius: 6px;
+			color: #fff;
+			font: inherit;
+			font-weight: 500;
+			cursor: pointer;
+			transition: opacity 0.15s ease-in-out;
+
+			&:hover,
+			&:focus {
+				opacity: 0.9;
+			}
+		}
+	}
+}

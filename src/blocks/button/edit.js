@@ -10,8 +10,12 @@ import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 
 export default function Edit( { attributes, setAttributes } ) {
 	const { text, url, opensInNewTab, textAlign } = attributes;
+
+	// The link itself carries every style support (color, typography,
+	// spacing, border, shadow) since it's the actual visible button box;
+	// the wrapper below only ever handles the button's own alignment.
 	const blockProps = useBlockProps( {
-		className: textAlign ? `has-text-align-${ textAlign }` : undefined,
+		className: 'noortemplates-button__link',
 	} );
 
 	return (
@@ -26,9 +30,9 @@ export default function Edit( { attributes, setAttributes } ) {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Link Settings', 'noorblocks' ) }>
+				<PanelBody title={ __( 'Link Settings', 'noortemplates' ) }>
 					<TextControl
-						label={ __( 'URL', 'noorblocks' ) }
+						label={ __( 'URL', 'noortemplates' ) }
 						value={ url }
 						onChange={ ( value ) =>
 							setAttributes( { url: value } )
@@ -36,7 +40,7 @@ export default function Edit( { attributes, setAttributes } ) {
 						placeholder="https://"
 					/>
 					<ToggleControl
-						label={ __( 'Open in new tab', 'noorblocks' ) }
+						label={ __( 'Open in new tab', 'noortemplates' ) }
 						checked={ opensInNewTab }
 						onChange={ ( value ) =>
 							setAttributes( { opensInNewTab: value } )
@@ -45,13 +49,19 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 
-			<div { ...blockProps }>
+			<div
+				className={
+					textAlign
+						? `wp-block-noortemplates-button has-text-align-${ textAlign }`
+						: 'wp-block-noortemplates-button'
+				}
+			>
 				<RichText
 					tagName="a"
-					className="noorblocks-button__link"
+					{ ...blockProps }
 					value={ text }
 					onChange={ ( value ) => setAttributes( { text: value } ) }
-					placeholder={ __( 'Add text…', 'noorblocks' ) }
+					placeholder={ __( 'Add text…', 'noortemplates' ) }
 					allowedFormats={ [ 'core/bold', 'core/italic' ] }
 				/>
 			</div>

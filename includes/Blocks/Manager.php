@@ -2,12 +2,12 @@
 /**
  * Block registration manager.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks\Blocks;
+namespace NoorTemplates\Blocks;
 
-use NoorBlocks\Traits\Singleton;
+use NoorTemplates\Traits\Singleton;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -21,7 +21,7 @@ class Manager {
 	/**
 	 * Option name storing the list of disabled block names.
 	 */
-	const DISABLED_OPTION = 'noorblocks_disabled_blocks';
+	const DISABLED_OPTION = 'noortemplates_disabled_blocks';
 
 	/**
 	 * Hooks block registration.
@@ -43,7 +43,7 @@ class Manager {
 		 * @param string[] $disabled Block names that will not be registered.
 		 */
 		$disabled = (array) apply_filters(
-			'noorblocks/disabled_blocks',
+			'noortemplates/disabled_blocks',
 			(array) get_option( self::DISABLED_OPTION, array() )
 		);
 
@@ -59,7 +59,7 @@ class Manager {
 	}
 
 	/**
-	 * Adds the NoorBlocks category to the top of the block inserter.
+	 * Adds the NoorTemplates category to the top of the block inserter.
 	 *
 	 * @param array $categories Existing block categories.
 	 * @return array
@@ -68,8 +68,8 @@ class Manager {
 		return array_merge(
 			array(
 				array(
-					'slug'  => 'noorblocks',
-					'title' => __( 'NoorBlocks', 'noorblocks' ),
+					'slug'  => 'noortemplates',
+					'title' => __( 'NoorTemplates', 'noortemplates' ),
 					'icon'  => null,
 				),
 			),
@@ -83,7 +83,7 @@ class Manager {
 	 * @return string[]
 	 */
 	public function get_block_dirs() {
-		$dirs = glob( NOORBLOCKS_DIR . 'build/blocks/*', GLOB_ONLYDIR );
+		$dirs = glob( NOORTEMPLATES_DIR . 'build/blocks/*', GLOB_ONLYDIR );
 
 		if ( ! is_array( $dirs ) ) {
 			$dirs = array();
@@ -97,7 +97,7 @@ class Manager {
 		 *
 		 * @param string[] $dirs Absolute block directory paths.
 		 */
-		$dirs = (array) apply_filters( 'noorblocks/block_dirs', $dirs );
+		$dirs = (array) apply_filters( 'noortemplates/block_dirs', $dirs );
 
 		return array_filter(
 			$dirs,

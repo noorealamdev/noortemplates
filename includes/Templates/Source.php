@@ -2,10 +2,10 @@
 /**
  * Template source contract.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks\Templates;
+namespace NoorTemplates\Templates;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * Implement this to add templates from any origin (bundled files, a remote
  * cloud API, a Pro add-on, …) and register the instance via the
- * `noorblocks/template_sources` filter.
+ * `noortemplates/template_sources` filter.
  */
 interface Source {
 
@@ -26,14 +26,19 @@ interface Source {
 	public function get_id();
 
 	/**
-	 * Returns the templates provided by this source.
+	 * Returns the templates provided by this source, as lightweight
+	 * metadata for browsing the library.
 	 *
 	 * Each template is an associative array:
 	 * - name        (string) Unique slug.
 	 * - title       (string) Human-readable title.
 	 * - description (string) Short description.
-	 * - type        (string) Either 'page' or 'section'.
-	 * - content     (string) Serialized block markup.
+	 * - type        (string) Either 'layout' or 'section'.
+	 * - category    (string) Filter category slug.
+	 * - thumbnail   (string) Absolute URL to a preview image.
+	 *
+	 * Implementations do not need to include `content` here; sources that
+	 * can provide full content on demand should implement Lazy_Source.
 	 *
 	 * @return array[]
 	 */

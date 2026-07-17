@@ -1,13 +1,13 @@
-.wp-block-noorblocks-tabs {
+.wp-block-noortemplates-tabs {
 
-	.noorblocks-tabs__list {
+	.noortemplates-tabs__list {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 4px;
 		border-bottom: 2px solid #e0e0e0;
 	}
 
-	.noorblocks-tabs__tab {
+	.noortemplates-tabs__tab {
 		margin-bottom: -2px;
 		padding: 10px 18px;
 		background: none;
@@ -29,7 +29,17 @@
 		}
 	}
 
-	.noorblocks-tabs__panel {
+	.noortemplates-tabs__panel {
 		padding: 16px 0;
+	}
+
+	// Matches the mobile breakpoint used by the shared Visibility feature
+	// (src/extensions/style.scss) for consistency.
+	@media (max-width: 599px) {
+
+		.noortemplates-tabs__tab {
+			padding: 8px 12px;
+			font-size: 0.875rem;
+		}
 	}
 }

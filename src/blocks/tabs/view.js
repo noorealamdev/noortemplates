@@ -1,6 +1,6 @@
 import { store, getContext, getElement } from '@wordpress/interactivity';
 
-store( 'noorblocks/tabs', {
+store( 'noortemplates/tabs', {
 	state: {
 		get isSelected() {
 			const { tabId, active } = getContext();

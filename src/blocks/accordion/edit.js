@@ -7,30 +7,32 @@ import {
 import { PanelBody, ToggleControl } from '@wordpress/components';
 
 const TEMPLATE = [
-	[ 'noorblocks/accordion-item' ],
-	[ 'noorblocks/accordion-item' ],
+	[ 'noortemplates/accordion-item' ],
+	[ 'noortemplates/accordion-item' ],
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
 	const { allowMultiple } = attributes;
 	const blockProps = useBlockProps();
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: [ 'noorblocks/accordion-item' ],
+		allowedBlocks: [ 'noortemplates/accordion-item' ],
 		template: TEMPLATE,
 	} );
 
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Accordion Settings', 'noorblocks' ) }>
+				<PanelBody
+					title={ __( 'Accordion Settings', 'noortemplates' ) }
+				>
 					<ToggleControl
 						label={ __(
 							'Allow multiple open items',
-							'noorblocks'
+							'noortemplates'
 						) }
 						help={ __(
 							'When off, opening an item closes the others.',
-							'noorblocks'
+							'noortemplates'
 						) }
 						checked={ allowMultiple }
 						onChange={ ( value ) =>

@@ -2,12 +2,12 @@
 /**
  * Cloud template source.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks\Templates\Sources;
+namespace NoorTemplates\Templates\Sources;
 
-use NoorBlocks\Templates\Source;
+use NoorTemplates\Templates\Lazy_Source;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -18,24 +18,30 @@ defined( 'ABSPATH' ) || exit;
  *
  *     [
  *         {
- *             "name": "agency-home",
- *             "title": "Agency Home",
+ *             "name": "bold-product-page",
+ *             "title": "Bold",
  *             "description": "…",
- *             "type": "page",
- *             "content": "<!-- wp:noorblocks/container -->…"
+ *             "type": "layout",
+ *             "category": "bold",
+ *             "thumbnail": "https://example.com/thumbnails/bold.png",
+ *             "content": "<!-- wp:noortemplates/product-title /-->…"
  *         }
  *     ]
  *
- * The endpoint URL is configured with the NOORBLOCKS_CLOUD_URL constant or
- * the `noorblocks/cloud_api_url` filter; the source is inactive until one
+ * `category` and `thumbnail` are optional; `category` falls back to `type`
+ * and `thumbnail` falls back to an empty string (the editor renders a
+ * placeholder icon instead).
+ *
+ * The endpoint URL is configured with the NOORTEMPLATES_CLOUD_URL constant or
+ * the `noortemplates/cloud_api_url` filter; the source is inactive until one
  * of them provides a URL. Responses are cached in a transient.
  */
-class Cloud_Source implements Source {
+class Cloud_Source implements Lazy_Source {
 
 	/**
 	 * Transient name for the cached cloud response.
 	 */
-	const CACHE_KEY = 'noorblocks_cloud_templates';
+	const CACHE_KEY = 'noortemplates_cloud_templates';
 
 	/**
 	 * How long successful responses are cached.
@@ -53,7 +59,7 @@ class Cloud_Source implements Source {
 	 *
 	 * @var string[]
 	 */
-	private static $types = array( 'page', 'section' );
+	private static $types = array( 'layout', 'section' );
 
 	/**
 	 * Returns the source identifier.
@@ -65,11 +71,45 @@ class Cloud_Source implements Source {
 	}
 
 	/**
-	 * Returns the cloud templates, from cache when available.
+	 * Returns the cloud templates as lightweight metadata (no `content`),
+	 * from cache when available.
 	 *
 	 * @return array[]
 	 */
 	public function get_templates() {
+		return array_map(
+			static function ( $template ) {
+				unset( $template['content'] );
+
+				return $template;
+			},
+			$this->get_cached_or_fetch()
+		);
+	}
+
+	/**
+	 * Returns a single cloud template with its full content.
+	 *
+	 * @param string $name Template slug.
+	 * @return array|null
+	 */
+	public function get_template( $name ) {
+		foreach ( $this->get_cached_or_fetch() as $template ) {
+			if ( isset( $template['name'] ) && $name === $template['name'] ) {
+				return $template;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the full cloud templates (with `content`), from cache when
+	 * available.
+	 *
+	 * @return array[]
+	 */
+	private function get_cached_or_fetch() {
 		$url = $this->get_api_url();
 
 		if ( ! $url ) {
@@ -109,14 +149,14 @@ class Cloud_Source implements Source {
 	 * @return string
 	 */
 	private function get_api_url() {
-		$url = defined( 'NOORBLOCKS_CLOUD_URL' ) ? NOORBLOCKS_CLOUD_URL : '';
+		$url = defined( 'NOORTEMPLATES_CLOUD_URL' ) ? NOORTEMPLATES_CLOUD_URL : '';
 
 		/**
 		 * Filters the cloud template API URL.
 		 *
 		 * @param string $url The API URL; empty string disables the source.
 		 */
-		return (string) apply_filters( 'noorblocks/cloud_api_url', $url );
+		return (string) apply_filters( 'noortemplates/cloud_api_url', $url );
 	}
 
 	/**
@@ -174,6 +214,12 @@ class Cloud_Source implements Source {
 					? sanitize_text_field( $item['description'] )
 					: '',
 				'type'        => $item['type'],
+				'category'    => isset( $item['category'] ) && is_string( $item['category'] )
+					? sanitize_key( $item['category'] )
+					: $item['type'],
+				'thumbnail'   => isset( $item['thumbnail'] ) && is_string( $item['thumbnail'] )
+					? esc_url_raw( $item['thumbnail'] )
+					: '',
 				'content'     => $item['content'],
 			);
 		}

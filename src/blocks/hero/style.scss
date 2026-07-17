@@ -1,0 +1,43 @@
+.wp-block-noortemplates-hero {
+	text-align: center;
+
+	.noortemplates-hero__heading {
+		margin: 0 0 0.5rem;
+	}
+
+	.noortemplates-hero__subheading {
+		max-width: 40em;
+		margin: 0 auto 1.5rem;
+	}
+
+	.noortemplates-hero__actions {
+		display: flex;
+		justify-content: center;
+		gap: 1rem;
+		flex-wrap: wrap;
+	}
+
+	&.has-text-align-left {
+
+		.noortemplates-hero__subheading {
+			margin-left: 0;
+			margin-right: auto;
+		}
+
+		.noortemplates-hero__actions {
+			justify-content: flex-start;
+		}
+	}
+
+	&.has-text-align-right {
+
+		.noortemplates-hero__subheading {
+			margin-left: auto;
+			margin-right: 0;
+		}
+
+		.noortemplates-hero__actions {
+			justify-content: flex-end;
+		}
+	}
+}

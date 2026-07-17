@@ -2,18 +2,24 @@
 /**
  * Main plugin class.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks;
+namespace NoorTemplates;
 
-use NoorBlocks\Traits\Singleton;
-use NoorBlocks\Blocks\Manager as Blocks_Manager;
-use NoorBlocks\Blocks\Interactivity;
-use NoorBlocks\Patterns\Manager as Patterns_Manager;
-use NoorBlocks\Assets\Manager as Assets_Manager;
-use NoorBlocks\Rest\Templates_Controller;
-use NoorBlocks\Admin\Dashboard;
+use NoorTemplates\Traits\Singleton;
+use NoorTemplates\Blocks\Manager as Blocks_Manager;
+use NoorTemplates\Blocks\Interactivity;
+use NoorTemplates\Blocks\Extensions as Blocks_Extensions;
+use NoorTemplates\Blocks\Buy_Now;
+use NoorTemplates\Patterns\Manager as Patterns_Manager;
+use NoorTemplates\Assets\Manager as Assets_Manager;
+use NoorTemplates\Rest\Templates_Controller;
+use NoorTemplates\Rest\Product_Reviews_Controller;
+use NoorTemplates\Admin\Dashboard;
+use NoorTemplates\Layouts\Post_Type as Layouts_Post_Type;
+use NoorTemplates\Layouts\Meta_Box as Layouts_Meta_Box;
+use NoorTemplates\Layouts\Template_Override as Layouts_Template_Override;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -28,9 +34,46 @@ class Plugin {
 	 * Wires up all services.
 	 */
 	protected function __construct() {
+		if ( ! $this->has_woocommerce() ) {
+			add_action( 'admin_notices', array( $this, 'render_missing_woocommerce_notice' ) );
+			return;
+		}
+
 		$this->init_services();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
+	}
+
+	/**
+	 * Whether WooCommerce is active.
+	 *
+	 * @return bool
+	 */
+	private function has_woocommerce() {
+		return class_exists( 'WooCommerce' );
+	}
+
+	/**
+	 * Warns the site admin that WooCommerce is required.
+	 *
+	 * @return void
+	 */
+	public function render_missing_woocommerce_notice() {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return;
+		}
+		?>
+		<div class="notice notice-error">
+			<p>
+				<?php
+				esc_html_e(
+					'NoorTemplates requires WooCommerce to be installed and active.',
+					'noortemplates'
+				);
+				?>
+			</p>
+		</div>
+		<?php
 	}
 
 	/**
@@ -43,9 +86,16 @@ class Plugin {
 
 		Blocks_Manager::instance();
 		Interactivity::instance();
+		Blocks_Extensions::instance();
+		Buy_Now::instance();
 		Patterns_Manager::instance();
 		Assets_Manager::instance();
 		Templates_Controller::instance();
+		Product_Reviews_Controller::instance();
+
+		Layouts_Post_Type::instance();
+		Layouts_Meta_Box::instance();
+		Layouts_Template_Override::instance();
 
 		if ( is_admin() ) {
 			Dashboard::instance();
@@ -58,7 +108,7 @@ class Plugin {
 		 *
 		 * @param Plugin $plugin The plugin instance.
 		 */
-		do_action( 'noorblocks/loaded', $this );
+		do_action( 'noortemplates/loaded', $this );
 	}
 
 	/**
@@ -67,6 +117,6 @@ class Plugin {
 	 * @return void
 	 */
 	public function load_textdomain() {
-		load_plugin_textdomain( 'noorblocks', false, dirname( NOORBLOCKS_BASENAME ) . '/languages' );
+		load_plugin_textdomain( 'noortemplates', false, dirname( NOORTEMPLATES_BASENAME ) . '/languages' );
 	}
 }

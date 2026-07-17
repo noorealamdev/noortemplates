@@ -3,14 +3,20 @@ import { useBlockProps, RichText } from '@wordpress/block-editor';
 export default function save( { attributes } ) {
 	const { text, url, opensInNewTab, textAlign } = attributes;
 	const blockProps = useBlockProps.save( {
-		className: textAlign ? `has-text-align-${ textAlign }` : undefined,
+		className: 'noortemplates-button__link',
 	} );
 
 	return (
-		<div { ...blockProps }>
+		<div
+			className={
+				textAlign
+					? `wp-block-noortemplates-button has-text-align-${ textAlign }`
+					: 'wp-block-noortemplates-button'
+			}
+		>
 			<RichText.Content
 				tagName="a"
-				className="noorblocks-button__link"
+				{ ...blockProps }
 				value={ text }
 				href={ url || undefined }
 				target={ opensInNewTab ? '_blank' : undefined }

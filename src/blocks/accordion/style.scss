@@ -1,21 +1,21 @@
-.wp-block-noorblocks-accordion {
+.wp-block-noortemplates-accordion {
 
-	.wp-block-noorblocks-accordion-item {
+	.wp-block-noortemplates-accordion-item {
 		overflow: hidden;
 		border: 1px solid #e0e0e0;
 		border-radius: 4px;
 
-		+ .wp-block-noorblocks-accordion-item {
+		+ .wp-block-noortemplates-accordion-item {
 			margin-top: 8px;
 		}
 	}
 
-	.noorblocks-accordion__heading {
+	.noortemplates-accordion__heading {
 		margin: 0;
 		font-size: inherit;
 	}
 
-	.noorblocks-accordion__toggle {
+	.noortemplates-accordion__toggle {
 		display: flex;
 		gap: 12px;
 		align-items: center;
@@ -31,7 +31,7 @@
 		text-align: left;
 	}
 
-	.noorblocks-accordion__icon::before {
+	.noortemplates-accordion__icon::before {
 		content: "+";
 		display: inline-block;
 		font-size: 1.25em;
@@ -40,11 +40,11 @@
 		transition: transform 0.2s ease-in-out;
 	}
 
-	.noorblocks-accordion__toggle.is-open .noorblocks-accordion__icon::before {
+	.noortemplates-accordion__toggle.is-open .noortemplates-accordion__icon::before {
 		transform: rotate(45deg);
 	}
 
-	.noorblocks-accordion__panel {
+	.noortemplates-accordion__panel {
 		padding: 0 16px 16px;
 	}
 }

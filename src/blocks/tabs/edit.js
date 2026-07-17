@@ -10,8 +10,8 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { plus } from '@wordpress/icons';
 
 const TEMPLATE = [
-	[ 'noorblocks/tab', { title: 'Tab 1' } ],
-	[ 'noorblocks/tab', { title: 'Tab 2' } ],
+	[ 'noortemplates/tab', { title: 'Tab 1' } ],
+	[ 'noortemplates/tab', { title: 'Tab 2' } ],
 ];
 
 export default function Edit( { clientId } ) {
@@ -40,16 +40,16 @@ export default function Edit( { clientId } ) {
 
 	const blockProps = useBlockProps();
 	const innerBlocksProps = useInnerBlocksProps(
-		{ className: 'noorblocks-tabs__panels' },
+		{ className: 'noortemplates-tabs__panels' },
 		{
-			allowedBlocks: [ 'noorblocks/tab' ],
+			allowedBlocks: [ 'noortemplates/tab' ],
 			template: TEMPLATE,
 			renderAppender: false,
 		}
 	);
 
 	const addTab = () => {
-		const tab = createBlock( 'noorblocks/tab', {
+		const tab = createBlock( 'noortemplates/tab', {
 			title: `Tab ${ tabs.length + 1 }`,
 		} );
 		insertBlock( tab, tabs.length, clientId );
@@ -62,13 +62,13 @@ export default function Edit( { clientId } ) {
 
 	return (
 		<div { ...blockProps }>
-			<div className="noorblocks-tabs__list">
+			<div className="noortemplates-tabs__list">
 				{ tabs.map( ( tab ) => (
 					/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */
 					<div
 						key={ tab.clientId }
 						className={
-							'noorblocks-tabs__tab' +
+							'noortemplates-tabs__tab' +
 							( tab.clientId === currentId ? ' is-active' : '' )
 						}
 						onClick={ () => selectBlock( tab.clientId ) }
@@ -81,16 +81,16 @@ export default function Edit( { clientId } ) {
 									title: value,
 								} )
 							}
-							placeholder={ __( 'Tab', 'noorblocks' ) }
+							placeholder={ __( 'Tab', 'noortemplates' ) }
 							allowedFormats={ [] }
 							withoutInteractiveFormatting
 						/>
 					</div>
 				) ) }
 				<Button
-					className="noorblocks-tabs__add"
+					className="noortemplates-tabs__add"
 					icon={ plus }
-					label={ __( 'Add tab', 'noorblocks' ) }
+					label={ __( 'Add tab', 'noortemplates' ) }
 					onClick={ addTab }
 				/>
 			</div>

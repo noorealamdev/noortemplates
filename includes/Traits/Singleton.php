@@ -2,10 +2,10 @@
 /**
  * Singleton trait.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks\Traits;
+namespace NoorTemplates\Traits;
 
 defined( 'ABSPATH' ) || exit;
 

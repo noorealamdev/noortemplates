@@ -1,14 +1,15 @@
 {
-	"name": "noorblocks",
+	"name": "noortemplates",
 	"version": "1.0.0",
-	"description": "A powerful Gutenberg blocks and patterns library built with a modern OOP architecture.",
+	"description": "A WooCommerce product page builder: blocks, layouts and templates for the single product page.",
 	"author": "Noore Alam",
 	"license": "GPL-2.0-or-later",
 	"files": [
-		"noorblocks.php",
+		"noortemplates.php",
 		"readme.txt",
 		"includes",
 		"patterns",
+		"templates",
 		"build"
 	],
 	"scripts": {

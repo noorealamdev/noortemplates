@@ -1,36 +1,49 @@
 {
-	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 3,
-	"name": "noorblocks/accordion",
-	"title": "Accordion",
-	"category": "noorblocks",
-	"icon": "menu-alt",
-	"description": "Collapsible content panels, perfect for FAQs. Powered by the WordPress Interactivity API — no jQuery, minimal footprint.",
-	"keywords": [ "accordion", "faq", "toggle", "collapse" ],
-	"version": "1.0.0",
-	"textdomain": "noorblocks",
-	"attributes": {
-		"allowMultiple": {
-			"type": "boolean",
-			"default": false
-		}
-	},
-	"supports": {
-		"align": [ "wide" ],
-		"anchor": true,
-		"html": false,
-		"interactivity": true,
-		"color": {
-			"background": true,
-			"text": true
-		},
-		"spacing": {
-			"margin": true,
-			"padding": true
-		}
-	},
-	"editorScript": "file:./index.js",
-	"style": "file:./style-index.css",
-	"editorStyle": "file:./index.css",
-	"viewScriptModule": "file:./view.js"
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "noortemplates/accordion",
+    "title": "Accordion",
+    "category": "noortemplates",
+    "icon": "menu-alt",
+    "description": "Collapsible content panels, perfect for FAQs. Powered by the WordPress Interactivity API — no jQuery, minimal footprint.",
+    "keywords": [
+        "accordion",
+        "faq",
+        "toggle",
+        "collapse"
+    ],
+    "version": "1.0.0",
+    "textdomain": "noortemplates",
+    "attributes": {
+        "allowMultiple": {
+            "type": "boolean",
+            "default": false
+        }
+    },
+    "supports": {
+        "align": [
+            "wide"
+        ],
+        "anchor": true,
+        "html": false,
+        "interactivity": true,
+        "color": {
+            "background": true,
+            "text": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true
+        },
+        "__experimentalBorder": {
+            "radius": true,
+            "width": true,
+            "color": true
+        },
+        "shadow": true
+    },
+    "editorScript": "file:./index.js",
+    "style": "file:./style-index.css",
+    "editorStyle": "file:./index.css",
+    "viewScriptModule": "file:./view.js"
 }

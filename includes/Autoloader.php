@@ -1,16 +1,16 @@
 <?php
 /**
- * PSR-4 autoloader for the NoorBlocks namespace.
+ * PSR-4 autoloader for the NoorTemplates namespace.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks;
+namespace NoorTemplates;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Maps NoorBlocks\Sub\ClassName to includes/Sub/ClassName.php.
+ * Maps NoorTemplates\Sub\ClassName to includes/Sub/ClassName.php.
  */
 class Autoloader {
 
@@ -19,7 +19,7 @@ class Autoloader {
 	 *
 	 * @var string
 	 */
-	const PREFIX = 'NoorBlocks\\';
+	const PREFIX = 'NoorTemplates\\';
 
 	/**
 	 * Registers the autoloader with SPL.
@@ -42,7 +42,7 @@ class Autoloader {
 		}
 
 		$relative = substr( $class_name, strlen( self::PREFIX ) );
-		$path     = NOORBLOCKS_DIR . 'includes/' . str_replace( '\\', '/', $relative ) . '.php';
+		$path     = NOORTEMPLATES_DIR . 'includes/' . str_replace( '\\', '/', $relative ) . '.php';
 
 		if ( is_readable( $path ) ) {
 			require $path;

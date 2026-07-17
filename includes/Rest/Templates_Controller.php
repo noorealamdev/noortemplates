@@ -2,13 +2,13 @@
 /**
  * Templates REST controller.
  *
- * @package NoorBlocks
+ * @package NoorTemplates
  */
 
-namespace NoorBlocks\Rest;
+namespace NoorTemplates\Rest;
 
-use NoorBlocks\Traits\Singleton;
-use NoorBlocks\Templates\Repository;
+use NoorTemplates\Traits\Singleton;
+use NoorTemplates\Templates\Repository;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -22,7 +22,7 @@ class Templates_Controller {
 	/**
 	 * REST namespace.
 	 */
-	const REST_NAMESPACE = 'noorblocks/v1';
+	const REST_NAMESPACE = 'noortemplates/v1';
 
 	/**
 	 * Hooks route registration.
@@ -45,6 +45,18 @@ class Templates_Controller {
 					'methods'             => 'GET',
 					'callback'            => array( $this, 'get_templates' ),
 					'permission_callback' => array( $this, 'can_use_library' ),
+					'args'                => array(
+						'type'     => array(
+							'type' => 'string',
+							'enum' => array( 'layout', 'section' ),
+						),
+						'category' => array(
+							'type' => 'string',
+						),
+						'search'   => array(
+							'type' => 'string',
+						),
+					),
 				),
 			)
 		);
@@ -60,15 +72,54 @@ class Templates_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/templates/(?P<name>[a-z0-9_-]+)',
+			array(
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( $this, 'get_template' ),
+					'permission_callback' => array( $this, 'can_use_library' ),
+				),
+			)
+		);
 	}
 
 	/**
-	 * Returns every library template.
+	 * Returns library templates as lightweight metadata, optionally
+	 * filtered by type, category and/or search term.
 	 *
+	 * @param \WP_REST_Request $request Full data about the request.
 	 * @return \WP_REST_Response
 	 */
-	public function get_templates() {
-		return rest_ensure_response( Repository::instance()->get_templates() );
+	public function get_templates( $request ) {
+		$args = array_intersect_key(
+			$request->get_params(),
+			array_flip( array( 'type', 'category', 'search' ) )
+		);
+
+		return rest_ensure_response( Repository::instance()->get_templates( $args ) );
+	}
+
+	/**
+	 * Returns a single template with its full content.
+	 *
+	 * @param \WP_REST_Request $request Full data about the request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public function get_template( $request ) {
+		$template = Repository::instance()->get_template( $request['name'] );
+
+		if ( ! $template ) {
+			return new \WP_Error(
+				'noortemplates_template_not_found',
+				__( 'Template not found.', 'noortemplates' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		return rest_ensure_response( $template );
 	}
 
 	/**

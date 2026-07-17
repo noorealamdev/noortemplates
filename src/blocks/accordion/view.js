@@ -1,6 +1,6 @@
 import { store, getContext } from '@wordpress/interactivity';
 
-store( 'noorblocks/accordion', {
+store( 'noortemplates/accordion', {
 	state: {
 		get isOpen() {
 			const { uid, open } = getContext();

@@ -102,6 +102,37 @@ class Meta_Box {
 		<p class="description">
 			<?php esc_html_e( 'Replace this product\'s page with a NoorTemplates layout.', 'noortemplates' ); ?>
 		</p>
+		<hr />
+		<?php
+		$split_enabled = '1' === get_post_meta( $post->ID, Split_Test::ENABLED_META_KEY, true );
+		$variant_b     = get_post_meta( $post->ID, Split_Test::VARIANT_B_META_KEY, true );
+		$ratio         = get_post_meta( $post->ID, Split_Test::RATIO_META_KEY, true );
+		?>
+		<p>
+			<label>
+				<input type="checkbox" name="noortemplates_split_enabled" value="1" <?php checked( $split_enabled ); ?> />
+				<?php esc_html_e( 'Split test against a second layout', 'noortemplates' ); ?>
+			</label>
+		</p>
+		<p>
+			<label for="noortemplates_layout_id_b"><?php esc_html_e( 'Variant B', 'noortemplates' ); ?></label>
+			<?php $this->render_select( 'noortemplates_layout_id_b', (int) $variant_b ); ?>
+		</p>
+		<p>
+			<label for="noortemplates_split_ratio"><?php esc_html_e( 'Traffic to Variant B (%)', 'noortemplates' ); ?></label>
+			<input
+				type="number"
+				name="noortemplates_split_ratio"
+				id="noortemplates_split_ratio"
+				min="1"
+				max="99"
+				value="<?php echo esc_attr( $ratio ? (int) $ratio : 50 ); ?>"
+				style="width:100%;"
+			/>
+		</p>
+		<p class="description">
+			<?php esc_html_e( 'Visitors are split between the layout above (Variant A) and Variant B, and stuck with a cookie. Results appear under NoorTemplates → Split Tests.', 'noortemplates' ); ?>
+		</p>
 		<?php
 	}
 
@@ -130,6 +161,24 @@ class Meta_Box {
 		} else {
 			delete_post_meta( $post_id, Resolver::PRODUCT_META_KEY );
 		}
+
+		if ( ! empty( $_POST['noortemplates_split_enabled'] ) ) {
+			update_post_meta( $post_id, Split_Test::ENABLED_META_KEY, '1' );
+		} else {
+			delete_post_meta( $post_id, Split_Test::ENABLED_META_KEY );
+		}
+
+		$variant_b = isset( $_POST['noortemplates_layout_id_b'] ) ? absint( $_POST['noortemplates_layout_id_b'] ) : 0;
+
+		if ( $variant_b ) {
+			update_post_meta( $post_id, Split_Test::VARIANT_B_META_KEY, $variant_b );
+		} else {
+			delete_post_meta( $post_id, Split_Test::VARIANT_B_META_KEY );
+		}
+
+		// Never trust the posted value to already be within range.
+		$ratio = isset( $_POST['noortemplates_split_ratio'] ) ? absint( $_POST['noortemplates_split_ratio'] ) : 50;
+		update_post_meta( $post_id, Split_Test::RATIO_META_KEY, max( 1, min( 99, $ratio ) ) );
 	}
 
 	/**

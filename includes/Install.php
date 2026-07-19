@@ -8,6 +8,7 @@
 namespace NoorTemplates;
 
 use NoorTemplates\Templates\Repository;
+use NoorTemplates\Layouts\Split_Test_Stats;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -36,6 +37,12 @@ class Install {
 	 * @return void
 	 */
 	public static function activate() {
+		// Unconditional: get_migrations() never runs on a fresh install
+		// (maybe_upgrade() only applies migrations when upgrading FROM a
+		// known previous version), so the table must also be created here
+		// directly. dbDelta() is safe to call repeatedly.
+		Split_Test_Stats::create_table();
+
 		self::maybe_upgrade();
 	}
 
@@ -85,6 +92,18 @@ class Install {
 	 * @return array<string, callable>
 	 */
 	private static function get_migrations() {
-		return array();
+		return array(
+			'1.1.0' => array( __CLASS__, 'migrate_110' ),
+		);
+	}
+
+	/**
+	 * Creates the split-test counters table for sites upgrading in place
+	 * (e.g. via auto-update, which never re-fires register_activation_hook).
+	 *
+	 * @return void
+	 */
+	private static function migrate_110() {
+		Split_Test_Stats::create_table();
 	}
 }

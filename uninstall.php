@@ -28,6 +28,12 @@ foreach ( $noortemplates_layouts as $noortemplates_layout_id ) {
 }
 
 delete_post_meta_by_key( '_noortemplates_layout_id' );
+delete_post_meta_by_key( '_noortemplates_layout_id_b' );
+delete_post_meta_by_key( '_noortemplates_split_enabled' );
+delete_post_meta_by_key( '_noortemplates_split_ratio' );
+
+global $wpdb;
+$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'noortemplates_split_stats' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- fixed table name, not user input.
 
 $noortemplates_terms = get_terms(
 	array(

@@ -23,74 +23,60 @@
 		font-weight: 400;
 	}
 
-	// Tab navigation — rounded "folder tab" style: a light gray bar with
-	// the active tab popping up as a white rounded card, its background
-	// covering the bar's own bottom border right where it sits so the
-	// divider line reads as "broken" under the selected tab.
+	// Tab navigation — plain underline style: left-aligned labels sitting
+	// on one shared divider line, the active tab picked out by weight and
+	// a short underline instead of a background/card treatment.
 	ul.tabs.wc-tabs {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
-		gap: 4px;
-		padding: 6px 6px 0;
+		justify-content: flex-start;
+		gap: 2rem;
+		padding: 0;
 		margin: 0 0 2rem;
 		list-style: none;
-		background: #f4f4f5;
-		border-radius: 14px 14px 0 0;
 		border-bottom: 1px solid #e5e5e6;
 
 		li {
-			position: relative;
-			margin: 0;
+			margin: 0 0 -1px;
 			padding: 0;
 
 			a {
 				display: block;
-				padding: 10px 20px;
-				border-radius: 10px 10px 0 0;
-				// Not a fixed weight: inherits whatever the block's own
-				// Font Weight setting (Typography panel) resolves to.
+				padding: 0 0 1rem;
+				border-bottom: 2px solid transparent;
+				// Not a fixed weight/color: inherits whatever the block's
+				// own Font Weight/Text Color settings (Typography/Color
+				// panels) resolve to — only dimmed via opacity here so
+				// those controls stay live instead of being overridden.
 				color: inherit;
+				opacity: 0.55;
 				text-decoration: none;
-				transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+				transition: opacity 0.15s ease-in-out, border-color 0.15s ease-in-out;
 
 				&:hover {
-					background: rgba(0, 0, 0, 0.04);
+					opacity: 0.85;
+				}
+
+				// The underline/bold state below already indicates focus
+				// and selection clearly enough on its own; the browser's
+				// default focus rectangle just duplicates that here.
+				&:focus {
+					opacity: 0.85;
+					outline: none;
 				}
 			}
 
-			// The active tab always reads as the same accent blue,
-			// regardless of the block's own Text Color setting — like a
-			// browser tab, its color is a selection indicator, not part of
-			// the customizable body content.
 			&.active a {
-				position: relative;
-				z-index: 1;
-				margin-bottom: -1px;
-				padding-bottom: 11px;
-				background: #fff;
-				color: #2c6ecb;
-
-				&:hover {
-					background: #fff;
-				}
+				opacity: 1;
+				font-weight: 700;
+				border-bottom-color: currentcolor;
 			}
 		}
 
 		// Matches the mobile breakpoint used throughout the plugin (the
-		// Visibility feature and the custom Tabs block). Only padding
-		// shrinks here — font-size is intentionally left alone so the
-		// block's own Font Size setting (and its automatic fluid mobile
-		// scaling) keeps working instead of being overridden.
+		// Visibility feature and the custom Tabs block).
 		@media (max-width: 599px) {
-
-			li a {
-				padding: 8px 14px;
-			}
-
-			li.active a {
-				padding-bottom: 9px;
-			}
+			gap: 1.25rem;
 		}
 	}
 

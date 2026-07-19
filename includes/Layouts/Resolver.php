@@ -54,6 +54,16 @@ class Resolver {
 	 * @return int
 	 */
 	public function get_layout_id( $product_id ) {
+		$preview_id = Preview::instance()->get_requested_layout_id();
+
+		if ( $preview_id ) {
+			return $preview_id;
+		}
+
+		if ( Split_Test::instance()->has_active_test( $product_id ) ) {
+			return Split_Test::instance()->resolve_variant( $product_id );
+		}
+
 		$product_layout = (int) get_post_meta( $product_id, self::PRODUCT_META_KEY, true );
 
 		if ( $this->is_published_layout( $product_layout ) ) {

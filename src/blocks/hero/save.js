@@ -1,33 +1,56 @@
 import { useBlockProps, InnerBlocks, RichText } from '@wordpress/block-editor';
-
-function getBackgroundStyle( backgroundImage ) {
-	if ( ! backgroundImage || ! backgroundImage.url ) {
-		return {};
-	}
-
-	return {
-		backgroundImage: `url(${ backgroundImage.url })`,
-		backgroundSize: 'cover',
-		backgroundPosition: 'center',
-	};
-}
+import {
+	getBackgroundStyle,
+	hasBackgroundVideo,
+	hasOverlay,
+} from './background';
 
 export default function save( { attributes } ) {
 	const {
 		heading,
 		subheading,
+		backgroundType,
 		backgroundImage,
+		backgroundVideo,
+		overlayColor,
+		overlayOpacity,
 		textAlign,
 		headingFontSize,
 		subheadingFontSize,
 	} = attributes;
 	const blockProps = useBlockProps.save( {
 		className: textAlign ? `has-text-align-${ textAlign }` : undefined,
-		style: getBackgroundStyle( backgroundImage ),
+		style: getBackgroundStyle(
+			backgroundType,
+			backgroundImage,
+			backgroundVideo,
+			overlayOpacity
+		),
 	} );
+	const showVideo = hasBackgroundVideo( backgroundType, backgroundVideo );
+	const showOverlay = hasOverlay( overlayOpacity );
 
 	return (
 		<div { ...blockProps }>
+			{ showVideo && (
+				<video
+					className="noortemplates-hero__bg-video"
+					src={ backgroundVideo.url }
+					autoPlay
+					muted
+					loop
+					playsInline
+				/>
+			) }
+			{ showOverlay && (
+				<div
+					className="noortemplates-hero__overlay"
+					style={ {
+						backgroundColor: overlayColor,
+						opacity: overlayOpacity / 100,
+					} }
+				/>
+			) }
 			<RichText.Content
 				tagName="h1"
 				className="noortemplates-hero__heading"

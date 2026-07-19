@@ -20,6 +20,10 @@ use NoorTemplates\Admin\Dashboard;
 use NoorTemplates\Layouts\Post_Type as Layouts_Post_Type;
 use NoorTemplates\Layouts\Meta_Box as Layouts_Meta_Box;
 use NoorTemplates\Layouts\Template_Override as Layouts_Template_Override;
+use NoorTemplates\Layouts\Split_Test;
+use NoorTemplates\Layouts\Duplicate as Layouts_Duplicate;
+use NoorTemplates\Layouts\Preview as Layouts_Preview;
+use NoorTemplates\Admin\Split_Tests_Page;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -96,9 +100,13 @@ class Plugin {
 		Layouts_Post_Type::instance();
 		Layouts_Meta_Box::instance();
 		Layouts_Template_Override::instance();
+		Layouts_Duplicate::instance();
+		Layouts_Preview::instance();
+		Split_Test::instance();
 
 		if ( is_admin() ) {
 			Dashboard::instance();
+			Split_Tests_Page::instance();
 		}
 
 		/**

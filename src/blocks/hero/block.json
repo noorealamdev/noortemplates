@@ -5,7 +5,7 @@
 	"title": "Hero",
 	"category": "noortemplates",
 	"icon": "cover-image",
-	"description": "A full-width hero section with a heading, subheading, call-to-action button and optional background image.",
+	"description": "A full-width hero section with a heading, subheading, call-to-action button and an optional background image or video.",
 	"keywords": [ "hero", "banner", "section", "cover" ],
 	"version": "1.0.0",
 	"textdomain": "noortemplates",
@@ -22,12 +22,31 @@
 			"selector": ".noortemplates-hero__subheading",
 			"default": ""
 		},
+		"backgroundType": {
+			"type": "string",
+			"default": "image"
+		},
 		"backgroundImage": {
 			"type": "object",
 			"default": {
 				"url": "",
 				"id": 0
 			}
+		},
+		"backgroundVideo": {
+			"type": "object",
+			"default": {
+				"url": "",
+				"id": 0
+			}
+		},
+		"overlayColor": {
+			"type": "string",
+			"default": "#000000"
+		},
+		"overlayOpacity": {
+			"type": "number",
+			"default": 0
 		},
 		"textAlign": {
 			"type": "string",

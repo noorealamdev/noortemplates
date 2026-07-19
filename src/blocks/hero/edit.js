@@ -15,36 +15,43 @@ import {
 	Button,
 	BaseControl,
 	FontSizePicker,
+	RangeControl,
+	ColorPalette,
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
+import {
+	getBackgroundStyle,
+	hasBackgroundVideo,
+	hasOverlay,
+} from './background';
 
 const ACTIONS_TEMPLATE = [ [ 'noortemplates/button' ] ];
-
-function getBackgroundStyle( backgroundImage ) {
-	if ( ! backgroundImage || ! backgroundImage.url ) {
-		return {};
-	}
-
-	return {
-		backgroundImage: `url(${ backgroundImage.url })`,
-		backgroundSize: 'cover',
-		backgroundPosition: 'center',
-	};
-}
 
 export default function Edit( { attributes, setAttributes } ) {
 	const {
 		heading,
 		subheading,
+		backgroundType,
 		backgroundImage,
+		backgroundVideo,
+		overlayColor,
+		overlayOpacity,
 		textAlign,
 		headingFontSize,
 		subheadingFontSize,
 	} = attributes;
 	const [ fontSizes ] = useSettings( 'typography.fontSizes' );
+	const [ colors = [] ] = useSettings( 'color.palette' );
 
 	const blockProps = useBlockProps( {
 		className: textAlign ? `has-text-align-${ textAlign }` : undefined,
-		style: getBackgroundStyle( backgroundImage ),
+		style: getBackgroundStyle(
+			backgroundType,
+			backgroundImage,
+			backgroundVideo,
+			overlayOpacity
+		),
 	} );
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'noortemplates-hero__actions' },
@@ -63,6 +70,17 @@ export default function Edit( { attributes, setAttributes } ) {
 	const onRemoveImage = () =>
 		setAttributes( { backgroundImage: { url: '', id: 0 } } );
 
+	const onSelectVideo = ( media ) =>
+		setAttributes( {
+			backgroundVideo: { url: media.url, id: media.id },
+		} );
+
+	const onRemoveVideo = () =>
+		setAttributes( { backgroundVideo: { url: '', id: 0 } } );
+
+	const showVideo = hasBackgroundVideo( backgroundType, backgroundVideo );
+	const showOverlay = hasOverlay( overlayOpacity );
+
 	return (
 		<>
 			<BlockControls>
@@ -75,6 +93,135 @@ export default function Edit( { attributes, setAttributes } ) {
 			</BlockControls>
 
 			<InspectorControls>
+				<PanelBody title={ __( 'Background', 'noortemplates' ) }>
+					<ToggleGroupControl
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+						label={ __( 'Type', 'noortemplates' ) }
+						value={ backgroundType }
+						onChange={ ( value ) =>
+							setAttributes( { backgroundType: value } )
+						}
+					>
+						<ToggleGroupControlOption
+							value="image"
+							label={ __( 'Image', 'noortemplates' ) }
+						/>
+						<ToggleGroupControlOption
+							value="video"
+							label={ __( 'Video', 'noortemplates' ) }
+						/>
+					</ToggleGroupControl>
+
+					{ 'video' === backgroundType ? (
+						<>
+							<MediaUploadCheck>
+								<MediaUpload
+									onSelect={ onSelectVideo }
+									allowedTypes={ [ 'video' ] }
+									value={ backgroundVideo?.id }
+									render={ ( { open } ) => (
+										<Button
+											variant="secondary"
+											onClick={ open }
+											className="noortemplates-hero__select-image"
+										>
+											{ backgroundVideo?.url
+												? __(
+														'Replace video',
+														'noortemplates'
+												  )
+												: __(
+														'Select video',
+														'noortemplates'
+												  ) }
+										</Button>
+									) }
+								/>
+							</MediaUploadCheck>
+							{ backgroundVideo?.url && (
+								<Button
+									variant="link"
+									isDestructive
+									onClick={ onRemoveVideo }
+								>
+									{ __( 'Remove video', 'noortemplates' ) }
+								</Button>
+							) }
+						</>
+					) : (
+						<>
+							<MediaUploadCheck>
+								<MediaUpload
+									onSelect={ onSelectImage }
+									allowedTypes={ [ 'image' ] }
+									value={ backgroundImage?.id }
+									render={ ( { open } ) => (
+										<Button
+											variant="secondary"
+											onClick={ open }
+											className="noortemplates-hero__select-image"
+										>
+											{ backgroundImage?.url
+												? __(
+														'Replace image',
+														'noortemplates'
+												  )
+												: __(
+														'Select image',
+														'noortemplates'
+												  ) }
+										</Button>
+									) }
+								/>
+							</MediaUploadCheck>
+							{ backgroundImage?.url && (
+								<Button
+									variant="link"
+									isDestructive
+									onClick={ onRemoveImage }
+								>
+									{ __( 'Remove image', 'noortemplates' ) }
+								</Button>
+							) }
+						</>
+					) }
+				</PanelBody>
+
+				<PanelBody title={ __( 'Overlay', 'noortemplates' ) }>
+					<RangeControl
+						__nextHasNoMarginBottom
+						__next40pxDefaultSize
+						label={ __( 'Opacity', 'noortemplates' ) }
+						help={ __(
+							'Darkens the background so text stays readable.',
+							'noortemplates'
+						) }
+						value={ overlayOpacity }
+						onChange={ ( value ) =>
+							setAttributes( { overlayOpacity: value ?? 0 } )
+						}
+						min={ 0 }
+						max={ 100 }
+					/>
+					{ showOverlay && (
+						<BaseControl
+							__nextHasNoMarginBottom
+							label={ __( 'Color', 'noortemplates' ) }
+						>
+							<ColorPalette
+								colors={ colors }
+								value={ overlayColor }
+								onChange={ ( value ) =>
+									setAttributes( {
+										overlayColor: value || '#000000',
+									} )
+								}
+							/>
+						</BaseControl>
+					) }
+				</PanelBody>
+
 				<PanelBody title={ __( 'Typography', 'noortemplates' ) }>
 					<BaseControl
 						__nextHasNoMarginBottom
@@ -107,45 +254,28 @@ export default function Edit( { attributes, setAttributes } ) {
 						/>
 					</BaseControl>
 				</PanelBody>
-
-				<PanelBody title={ __( 'Background', 'noortemplates' ) }>
-					<MediaUploadCheck>
-						<MediaUpload
-							onSelect={ onSelectImage }
-							allowedTypes={ [ 'image' ] }
-							value={ backgroundImage?.id }
-							render={ ( { open } ) => (
-								<Button
-									variant="secondary"
-									onClick={ open }
-									className="noortemplates-hero__select-image"
-								>
-									{ backgroundImage?.url
-										? __(
-												'Replace image',
-												'noortemplates'
-										  )
-										: __(
-												'Select image',
-												'noortemplates'
-										  ) }
-								</Button>
-							) }
-						/>
-					</MediaUploadCheck>
-					{ backgroundImage?.url && (
-						<Button
-							variant="link"
-							isDestructive
-							onClick={ onRemoveImage }
-						>
-							{ __( 'Remove image', 'noortemplates' ) }
-						</Button>
-					) }
-				</PanelBody>
 			</InspectorControls>
 
 			<div { ...blockProps }>
+				{ showVideo && (
+					<video
+						className="noortemplates-hero__bg-video"
+						src={ backgroundVideo.url }
+						autoPlay
+						muted
+						loop
+						playsInline
+					/>
+				) }
+				{ showOverlay && (
+					<div
+						className="noortemplates-hero__overlay"
+						style={ {
+							backgroundColor: overlayColor,
+							opacity: overlayOpacity / 100,
+						} }
+					/>
+				) }
 				<RichText
 					tagName="h1"
 					className="noortemplates-hero__heading"

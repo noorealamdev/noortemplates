@@ -329,7 +329,7 @@ export default function Library() {
 					icon={ layout }
 					onClick={ () => setOpen( true ) }
 				>
-					{ __( 'Templates', 'noortemplates' ) }
+					{ __( 'NoorTemplates', 'noortemplates' ) }
 				</Button>
 			</ToolbarPortal>
 

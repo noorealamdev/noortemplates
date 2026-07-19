@@ -24,8 +24,21 @@ if ( ! $product ) {
 // after) so it appears once, right after WooCommerce's own Add to Cart
 // button, without leaking onto any other add-to-cart form the theme
 // might render elsewhere on the site.
-$noortemplates_buy_now_button = function () {
+$noortemplates_buy_now_button = function () use ( $product ) {
+	/*
+	 * WooCommerce's add-to-cart handler (WC_Form_Handler::add_to_cart_action())
+	 * bails out immediately unless $_REQUEST['add-to-cart'] is set — for a
+	 * simple product that field only exists as the *default* Add to Cart
+	 * button's own name/value, so it's only submitted when THAT button is
+	 * the one clicked (per normal HTML form semantics: only the activated
+	 * submit button's name/value pair is included). Buy Now needs its own
+	 * hidden copy so it's submitted regardless of which button was clicked
+	 * — matching what WooCommerce's own variable-product template already
+	 * does for its cart button, which is why Buy Now happened to work for
+	 * variable products without this despite not working for simple ones.
+	 */
 	?>
+	<input type="hidden" name="add-to-cart" value="<?php echo esc_attr( $product->get_id() ); ?>" />
 	<button
 		type="submit"
 		name="<?php echo esc_attr( \NoorTemplates\Blocks\Buy_Now::FIELD ); ?>"

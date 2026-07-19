@@ -3,7 +3,15 @@
 // image/title/price/add-to-cart structure product-grid builds and styles
 // by hand, given the same defensive treatment here so it doesn't look
 // unstyled/inconsistent on themes with weak or absent WooCommerce CSS.
-.wp-block-noortemplates-related-products {
+// Doubled root class (not `!important`): Astra ships its own
+// `ul.products` column-count breakpoints (e.g. `.tablet-columns-3 ul.products`)
+// at the same specificity as this file's nested selectors, and its
+// stylesheet happens to print after this block's inline styles — on a
+// specificity tie, source order decides, so Astra's rule was winning and
+// silently overriding our grid-template-columns at tablet widths. Repeating
+// the wrapper class raises every selector below by one class, enough to
+// always win regardless of where a theme's own CSS lands in the page.
+.wp-block-noortemplates-related-products.wp-block-noortemplates-related-products {
 
 	.related.products {
 
@@ -16,15 +24,11 @@
 
 		ul.products {
 			display: grid;
-			gap: 2rem;
-			grid-template-columns: 1fr;
+			gap: 1.25rem 1rem;
+			grid-template-columns: repeat(2, 1fr);
 			list-style: none;
 			margin: 0;
 			padding: 0;
-
-			@media (min-width: 600px) {
-				grid-template-columns: repeat(2, 1fr);
-			}
 
 			@media (min-width: 900px) {
 				// A fixed 4-column grid, not auto-fill/auto-fit: WooCommerce's

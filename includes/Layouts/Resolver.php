@@ -60,6 +60,8 @@ class Resolver {
 			return $preview_id;
 		}
 
+		// Split_Test::has_active_test() is itself the Pro gate (see
+		// Licensing\Gate) — nothing extra needed here.
 		if ( Split_Test::instance()->has_active_test( $product_id ) ) {
 			return Split_Test::instance()->resolve_variant( $product_id );
 		}

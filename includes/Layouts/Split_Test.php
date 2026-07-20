@@ -8,6 +8,7 @@
 namespace NoorTemplates\Layouts;
 
 use NoorTemplates\Traits\Singleton;
+use NoorTemplates\Licensing\Gate;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -81,10 +82,21 @@ class Split_Test {
 	/**
 	 * Whether a product has a valid, currently-running split test.
 	 *
+	 * This is the single choke point every other method here goes through
+	 * (resolve_variant(), log_add_to_cart(), log_purchase()), so gating
+	 * Pro here is enough to make the whole feature inert without a
+	 * license — a product's split-test configuration (Variant B, ratio)
+	 * is left untouched, not deleted, so it resumes working the moment
+	 * the site is licensed.
+	 *
 	 * @param int $product_id Product post ID.
 	 * @return bool
 	 */
 	public function has_active_test( $product_id ) {
+		if ( ! Gate::has_feature( 'split_test' ) ) {
+			return false;
+		}
+
 		if ( '1' !== get_post_meta( $product_id, self::ENABLED_META_KEY, true ) ) {
 			return false;
 		}

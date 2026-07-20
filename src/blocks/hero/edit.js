@@ -25,6 +25,8 @@ import {
 	hasBackgroundVideo,
 	hasOverlay,
 } from './background';
+import ProControl from '../../utils/pro-control';
+import '../../utils/pro-control.scss';
 
 const ACTIONS_TEMPLATE = [ [ 'noortemplates/button' ] ];
 
@@ -114,7 +116,13 @@ export default function Edit( { attributes, setAttributes } ) {
 					</ToggleGroupControl>
 
 					{ 'video' === backgroundType ? (
-						<>
+						<ProControl
+							feature="hero_video_background"
+							message={ __(
+								'Use a video background.',
+								'noortemplates'
+							) }
+						>
 							<MediaUploadCheck>
 								<MediaUpload
 									onSelect={ onSelectVideo }
@@ -148,7 +156,7 @@ export default function Edit( { attributes, setAttributes } ) {
 									{ __( 'Remove video', 'noortemplates' ) }
 								</Button>
 							) }
-						</>
+						</ProControl>
 					) : (
 						<>
 							<MediaUploadCheck>

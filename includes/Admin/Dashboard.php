@@ -49,6 +49,21 @@ class Dashboard {
 			'dashicons-layout',
 			59
 		);
+
+		// add_menu_page() alone doesn't make the top-level menu link open
+		// this page — without a submenu explicitly matching the parent
+		// slug, WordPress instead links it to whichever submenu registers
+		// first under 'noortemplates' (here, Layouts\Post_Type's own
+		// "Product Layouts" CPT menu, added via show_in_menu). This
+		// duplicate submenu is the standard WordPress fix for that.
+		add_submenu_page(
+			self::PAGE_SLUG,
+			__( 'NoorTemplates', 'noortemplates' ),
+			__( 'Dashboard', 'noortemplates' ),
+			'manage_options',
+			self::PAGE_SLUG,
+			array( $this, 'render_page' )
+		);
 	}
 
 	/**

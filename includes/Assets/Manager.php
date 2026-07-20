@@ -9,6 +9,7 @@ namespace NoorTemplates\Assets;
 
 use NoorTemplates\Traits\Singleton;
 use NoorTemplates\Layouts\Resolver;
+use NoorTemplates\Licensing\Gate;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -40,6 +41,21 @@ class Manager {
 	public function enqueue_editor_assets() {
 		$this->enqueue_built_script( 'noortemplates-library', 'library/index', true );
 		$this->enqueue_built_script( 'noortemplates-extensions', 'extensions/index', false );
+
+		// wp_localize_script() stringifies every value (false becomes '',
+		// true becomes '1'), which is a footgun for a boolean callers check
+		// with strict-ish truthiness — wp_add_inline_script() with
+		// wp_json_encode() keeps isPro a real JS boolean instead.
+		wp_add_inline_script(
+			'noortemplates-library',
+			'window.noorTemplatesLicensing = ' . wp_json_encode(
+				array(
+					'isPro'       => Gate::is_pro(),
+					'checkoutUrl' => NOORTEMPLATES_CHECKOUT_URL,
+				)
+			) . ';',
+			'before'
+		);
 	}
 
 	/**

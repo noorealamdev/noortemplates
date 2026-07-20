@@ -11,6 +11,7 @@ use NoorTemplates\Traits\Singleton;
 use NoorTemplates\Layouts\Split_Test;
 use NoorTemplates\Layouts\Split_Test_Stats;
 use NoorTemplates\Layouts\Resolver as Layouts_Resolver;
+use NoorTemplates\Licensing\Gate;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -63,6 +64,10 @@ class Split_Tests_Page {
 		}
 
 		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! Gate::has_feature( 'split_test' ) ) {
 			return;
 		}
 
@@ -157,6 +162,20 @@ class Split_Tests_Page {
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Split Tests', 'noortemplates' ); ?></h1>
 			<p><?php esc_html_e( 'Raw counts only — no statistical significance is calculated. Enable a split test from a product\'s "Product Page Template" panel.', 'noortemplates' ); ?></p>
+
+			<?php if ( ! Gate::has_feature( 'split_test' ) ) : ?>
+				<div class="notice notice-warning">
+					<p>
+						<?php
+						printf(
+							/* translators: %s: "Upgrade to Pro" link */
+							esc_html__( 'Split testing requires NoorTemplates Pro — existing configurations are preserved but paused until you upgrade. %s', 'noortemplates' ),
+							'<a href="' . esc_url( NOORTEMPLATES_CHECKOUT_URL ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Upgrade to Pro', 'noortemplates' ) . '</a>'
+						);
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
 
 			<?php settings_errors( 'noortemplates_split_tests' ); ?>
 

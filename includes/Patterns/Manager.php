@@ -1,6 +1,6 @@
 <?php
 /**
- * Block pattern registration manager.
+ * Bundled JSON template registration manager.
  *
  * @package NoorTemplates
  */
@@ -8,33 +8,65 @@
 namespace NoorTemplates\Patterns;
 
 use NoorTemplates\Traits\Singleton;
+use NoorTemplates\Licensing\Gate;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers the NoorTemplates pattern categories and every pattern file.
+ * Registers every premade template shipped in the plugin's
+ * `templates/library/` folder, both as native Gutenberg block patterns and
+ * as entries in the NoorTemplates library (Templates\Sources\Local_Source).
  *
- * Patterns are organised by folder:
- * - patterns/sections/ — reusable product page sections (FAQ, trust badges,
- *                        feature table, …) meant to be inserted inside a
- *                        Product Layout.
- * - patterns/layouts/  — full single-product page layouts composed from
- *                        the WooCommerce wrapper blocks + sections; these
- *                        feed the Templates library on the Product Layout
- *                        editor.
- * - patterns/          — uncategorised one-off patterns.
+ * (Not the plugin-root `templates/` folder itself — that also holds
+ * `single-product-layout.php`, the unrelated frontend template file used to
+ * render a resolved Layout; `library/` keeps demo-template JSON files out
+ * of that folder.)
+ *
+ * Each template is a JSON file, e.g. `templates/library/product-layout-one.json`:
+ *
+ *     {
+ *         "title": "Bold Product Layout",
+ *         "description": "…",
+ *         "type": "layout",
+ *         "category": "bold",
+ *         "is_pro": true,
+ *         "content": "<!-- wp:noortemplates/product-title /-->…"
+ *     }
+ *
+ * `type` is required ('layout' or 'section'); `description`, `category` and
+ * `is_pro` are optional (`category` falls back to `type`, `is_pro` falls
+ * back to `false`). Content always ships with the template — this plugin
+ * is a single codebase, nothing is stripped for a "Free" build (see
+ * Licensing\Gate's own docblock for why). A `pro`-tier template's metadata
+ * is listed for everyone (an upsell), and Rest\Templates_Controller
+ * refuses to serve its full content unless Licensing\Gate::is_pro() is
+ * true — the exact same shape as NoorQuiz's TemplatesController::use_template().
+ * A thumbnail is picked up automatically from
+ * `templates/library/thumbnails/{file name}.{png,jpg,webp}` when present —
+ * no field needed in the JSON itself.
+ *
+ * Add-ons (e.g. NoorTemplates Pro) contribute their own template folder via
+ * the `noortemplates/pattern_dirs` filter. Every template found in such a
+ * folder is always treated as `is_pro: true`, regardless of its own JSON
+ * field — that folder only exists on a site because the add-on is
+ * installed, so nothing in it is ever free.
  */
 class Manager {
 
 	use Singleton;
 
 	/**
-	 * Transient key the parsed pattern collection is cached under.
+	 * Transient key the parsed template collection is cached under.
 	 */
 	const CACHE_KEY = 'noortemplates_patterns';
 
 	/**
-	 * Per-request memoized patterns, keyed by name.
+	 * Block pattern category every bundled template is registered under.
+	 */
+	const PATTERN_CATEGORY = 'noortemplates';
+
+	/**
+	 * Per-request memoized templates, keyed by name.
 	 *
 	 * @var array[]|null
 	 */
@@ -48,48 +80,20 @@ class Manager {
 	}
 
 	/**
-	 * Returns the pattern categories, keyed by slug.
+	 * Returns the directory bundled template JSON files are scanned from.
 	 *
-	 * @return array<string, string>
-	 */
-	public function get_categories() {
-		return array(
-			'noortemplates'          => __( 'NoorTemplates', 'noortemplates' ),
-			'noortemplates-sections' => __( 'NoorTemplates Sections', 'noortemplates' ),
-			'noortemplates-layouts'  => __( 'NoorTemplates Layouts', 'noortemplates' ),
-		);
-	}
-
-	/**
-	 * Returns the pattern directories mapped to their default category and
-	 * library type.
+	 * Filterable so an add-on can ship its own templates folder.
 	 *
-	 * @return array<string, array{pattern_category: string, type: ?string}>
+	 * @return string[] Absolute directory paths.
 	 */
 	private function get_pattern_dirs() {
-		$dirs = array(
-			NOORTEMPLATES_DIR . 'patterns'          => array(
-				'pattern_category' => 'noortemplates',
-				'type'             => null,
-			),
-			NOORTEMPLATES_DIR . 'patterns/sections' => array(
-				'pattern_category' => 'noortemplates-sections',
-				'type'             => 'section',
-			),
-			NOORTEMPLATES_DIR . 'patterns/layouts'  => array(
-				'pattern_category' => 'noortemplates-layouts',
-				'type'             => 'layout',
-			),
-		);
+		$dirs = array( NOORTEMPLATES_DIR . 'templates/library' );
 
 		/**
-		 * Filters the pattern directories to register.
+		 * Filters the directories bundled template JSON files are scanned
+		 * from.
 		 *
-		 * Keys are absolute directory paths, values an array with a
-		 * `pattern_category` slug and a library `type` ('layout', 'section'
-		 * or null for uncategorised one-off patterns).
-		 *
-		 * @param array $dirs Pattern directories.
+		 * @param string[] $dirs Absolute directory paths.
 		 */
 		return (array) apply_filters( 'noortemplates/pattern_dirs', $dirs );
 	}
@@ -98,7 +102,7 @@ class Manager {
 	 * Whether the current request can actually make use of registered
 	 * block patterns.
 	 *
-	 * Registering patterns requires globbing and including every pattern
+	 * Registering patterns requires reading and decoding every template
 	 * file, so this is skipped on front-end requests (e.g. WooCommerce
 	 * product pages) where the pattern registry is never consulted.
 	 *
@@ -123,7 +127,8 @@ class Manager {
 	}
 
 	/**
-	 * Registers the pattern categories and all pattern files.
+	 * Registers the pattern category and every bundled template as a
+	 * native block pattern.
 	 *
 	 * @return void
 	 */
@@ -132,11 +137,20 @@ class Manager {
 			return;
 		}
 
-		foreach ( $this->get_categories() as $slug => $label ) {
-			register_block_pattern_category( $slug, array( 'label' => $label ) );
-		}
+		register_block_pattern_category(
+			self::PATTERN_CATEGORY,
+			array( 'label' => __( 'NoorTemplates', 'noortemplates' ) )
+		);
 
 		foreach ( $this->get_patterns() as $name => $pattern ) {
+			// Native block patterns are inserted directly from the editor's
+			// Patterns tab with no REST round-trip, so Rest\Templates_Controller's
+			// gate never runs for this path — a Pro-tier template's real
+			// content must never be registered here unless actually licensed.
+			if ( ! empty( $pattern['is_pro'] ) && ! Gate::is_pro() ) {
+				continue;
+			}
+
 			register_block_pattern( 'noortemplates/' . $name, $pattern );
 		}
 	}
@@ -146,7 +160,7 @@ class Manager {
 	 * lightweight metadata (no `content`).
 	 *
 	 * @return array[] Each item: name, title, description, type
-	 *                 (layout|section), category, thumbnail.
+	 *                 (layout|section), category, is_pro (bool), thumbnail.
 	 */
 	public function get_library_templates() {
 		$templates = array();
@@ -162,6 +176,7 @@ class Manager {
 				'description' => $pattern['description'],
 				'type'        => $pattern['type'],
 				'category'    => $pattern['category'],
+				'is_pro'      => $pattern['is_pro'],
 				'thumbnail'   => $pattern['thumbnail'],
 			);
 		}
@@ -172,7 +187,7 @@ class Manager {
 	/**
 	 * Returns a single bundled template with its full content, or null.
 	 *
-	 * @param string $name Pattern file name without extension.
+	 * @param string $name Template file name without extension.
 	 * @return array|null
 	 */
 	public function get_template( $name ) {
@@ -190,18 +205,19 @@ class Manager {
 			'description' => $pattern['description'],
 			'type'        => $pattern['type'],
 			'category'    => $pattern['category'],
+			'is_pro'      => $pattern['is_pro'],
 			'thumbnail'   => $pattern['thumbnail'],
 			'content'     => $pattern['content'],
 		);
 	}
 
 	/**
-	 * Returns the raw block markup of a section pattern.
+	 * Returns the raw block markup of a template.
 	 *
-	 * Lets page templates be composed from section files without
+	 * Lets page templates be composed from section templates without
 	 * duplicating markup.
 	 *
-	 * @param string $name Section file name without extension.
+	 * @param string $name Template file name without extension.
 	 * @return string
 	 */
 	public static function get_section_content( $name ) {
@@ -211,8 +227,8 @@ class Manager {
 	}
 
 	/**
-	 * Empties the cached pattern collection so the next request rescans
-	 * every pattern file.
+	 * Empties the cached template collection so the next request rescans
+	 * every template file.
 	 *
 	 * @return void
 	 */
@@ -222,11 +238,12 @@ class Manager {
 	}
 
 	/**
-	 * Returns every pattern, keyed by name, normalized with fallbacks for
-	 * `category` and `thumbnail` and ready for register_block_pattern().
+	 * Returns every template, keyed by name, normalized with fallbacks for
+	 * `description`, `category` and `thumbnail` and ready for
+	 * register_block_pattern().
 	 *
 	 * Cached per-request in $this->patterns and across requests in a
-	 * transient, invalidated whenever any pattern file's mtime changes.
+	 * transient, invalidated whenever any template file's mtime changes.
 	 *
 	 * @return array[]
 	 */
@@ -257,18 +274,23 @@ class Manager {
 	}
 
 	/**
-	 * Builds a fingerprint from every pattern file's path and mtime, so
-	 * editing a file's content invalidates the cache immediately (not just
-	 * adding/removing/renaming a file, which is all a directory mtime
-	 * would reliably reflect).
+	 * Builds a fingerprint from every template file's and thumbnail's path
+	 * and mtime, so editing a template, or just adding/replacing its
+	 * thumbnail image, invalidates the cache immediately (not just
+	 * adding/removing/renaming a `.json` file, which is all a directory
+	 * mtime would reliably reflect).
 	 *
 	 * @return string
 	 */
 	private function get_fingerprint() {
 		$stamp = '';
 
-		foreach ( array_keys( $this->get_pattern_dirs() ) as $dir ) {
+		foreach ( $this->get_pattern_dirs() as $dir ) {
 			foreach ( $this->glob_pattern_files( $dir ) as $file ) {
+				$stamp .= $file . filemtime( $file );
+			}
+
+			foreach ( $this->glob_thumbnail_files( $dir ) as $file ) {
 				$stamp .= $file . filemtime( $file );
 			}
 		}
@@ -277,44 +299,70 @@ class Manager {
 	}
 
 	/**
-	 * Globs the *.php files directly inside a pattern directory.
+	 * Globs the *.json files directly inside a template directory.
 	 *
 	 * @param string $dir Absolute directory path.
 	 * @return string[]
 	 */
 	private function glob_pattern_files( $dir ) {
-		$files = glob( $dir . '/*.php' );
+		$files = glob( $dir . '/*.json' );
 
 		return is_array( $files ) ? $files : array();
 	}
 
 	/**
-	 * Includes and normalizes every pattern file.
+	 * Globs every thumbnail image inside a template directory's
+	 * `thumbnails/` subfolder.
+	 *
+	 * @param string $dir Absolute template directory.
+	 * @return string[]
+	 */
+	private function glob_thumbnail_files( $dir ) {
+		$files = array();
+
+		foreach ( array( 'png', 'jpg', 'webp' ) as $ext ) {
+			$matches = glob( $dir . '/thumbnails/*.' . $ext );
+
+			if ( is_array( $matches ) ) {
+				$files = array_merge( $files, $matches );
+			}
+		}
+
+		return $files;
+	}
+
+	/**
+	 * Reads and normalizes every template file.
 	 *
 	 * @return array[]
 	 */
 	private function scan_patterns() {
 		$patterns = array();
+		$own_dir  = NOORTEMPLATES_DIR . 'templates/library';
 
-		foreach ( $this->get_pattern_dirs() as $dir => $context ) {
+		foreach ( $this->get_pattern_dirs() as $dir ) {
+			// Every directory contributed by an add-on (i.e. not this
+			// plugin's own) only exists on a site because that add-on is
+			// installed, so its templates are always Pro — regardless of
+			// the JSON's own `is_pro` field, which an add-on author might
+			// forget to set.
+			$dir_is_pro = ( $dir !== $own_dir );
+
 			foreach ( $this->glob_pattern_files( $dir ) as $file ) {
-				$pattern = include $file;
+				$pattern = json_decode( (string) file_get_contents( $file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents
 
-				if ( ! is_array( $pattern ) || empty( $pattern['content'] ) ) {
+				if ( ! is_array( $pattern ) || empty( $pattern['content'] ) || empty( $pattern['type'] ) ) {
 					continue;
 				}
 
-				$name = basename( $file, '.php' );
+				$name = basename( $file, '.json' );
 
 				$pattern['title']       = isset( $pattern['title'] ) ? $pattern['title'] : $name;
 				$pattern['description'] = isset( $pattern['description'] ) ? $pattern['description'] : '';
-				$pattern['type']        = isset( $pattern['type'] ) ? $pattern['type'] : $context['type'];
 				$pattern['category']    = isset( $pattern['category'] ) ? $pattern['category'] : $pattern['type'];
+				$pattern['is_pro']      = $dir_is_pro || ! empty( $pattern['is_pro'] );
 				$pattern['thumbnail']   = isset( $pattern['thumbnail'] ) ? $pattern['thumbnail'] : $this->guess_thumbnail( $dir, $name );
-
-				if ( empty( $pattern['categories'] ) ) {
-					$pattern['categories'] = array( $context['pattern_category'] );
-				}
+				$pattern['categories']  = array( self::PATTERN_CATEGORY );
 
 				$patterns[ $name ] = $pattern;
 			}
@@ -324,11 +372,11 @@ class Manager {
 	}
 
 	/**
-	 * Auto-detects a thumbnail image co-located with a pattern file, in
+	 * Auto-detects a thumbnail image co-located with a template file, in
 	 * `{dir}/thumbnails/{name}.{png,jpg,webp}`.
 	 *
-	 * @param string $dir  Absolute pattern directory.
-	 * @param string $name Pattern file name without extension.
+	 * @param string $dir  Absolute template directory.
+	 * @param string $name Template file name without extension.
 	 * @return string Absolute URL, or '' when no thumbnail exists.
 	 */
 	private function guess_thumbnail( $dir, $name ) {
@@ -336,7 +384,7 @@ class Manager {
 			$path = $dir . '/thumbnails/' . $name . '.' . $ext;
 
 			if ( is_readable( $path ) ) {
-				return str_replace( NOORTEMPLATES_DIR, NOORTEMPLATES_URL, $path );
+				return str_replace( wp_normalize_path( WP_CONTENT_DIR ), content_url(), wp_normalize_path( $path ) );
 			}
 		}
 

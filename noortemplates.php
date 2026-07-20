@@ -23,6 +23,9 @@ define( 'NOORTEMPLATES_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NOORTEMPLATES_URL', plugin_dir_url( __FILE__ ) );
 define( 'NOORTEMPLATES_BASENAME', plugin_basename( __FILE__ ) );
 
+// Where Pro-only upgrade messages send the user — replace with the real
+define( 'NOORTEMPLATES_CHECKOUT_URL', 'https://example.com/replace-with-real-checkout-link' );
+
 // Register the PSR-4 autoloader.
 require_once NOORTEMPLATES_DIR . 'includes/Autoloader.php';
 \NoorTemplates\Autoloader::register();

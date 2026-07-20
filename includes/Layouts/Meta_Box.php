@@ -8,6 +8,7 @@
 namespace NoorTemplates\Layouts;
 
 use NoorTemplates\Traits\Singleton;
+use NoorTemplates\Licensing\Gate;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -103,36 +104,57 @@ class Meta_Box {
 			<?php esc_html_e( 'Replace this product\'s page with a NoorTemplates layout.', 'noortemplates' ); ?>
 		</p>
 		<hr />
-		<?php
-		$split_enabled = '1' === get_post_meta( $post->ID, Split_Test::ENABLED_META_KEY, true );
-		$variant_b     = get_post_meta( $post->ID, Split_Test::VARIANT_B_META_KEY, true );
-		$ratio         = get_post_meta( $post->ID, Split_Test::RATIO_META_KEY, true );
-		?>
-		<p>
-			<label>
-				<input type="checkbox" name="noortemplates_split_enabled" value="1" <?php checked( $split_enabled ); ?> />
-				<?php esc_html_e( 'Split test against a second layout', 'noortemplates' ); ?>
-			</label>
-		</p>
-		<p>
-			<label for="noortemplates_layout_id_b"><?php esc_html_e( 'Variant B', 'noortemplates' ); ?></label>
-			<?php $this->render_select( 'noortemplates_layout_id_b', (int) $variant_b ); ?>
-		</p>
-		<p>
-			<label for="noortemplates_split_ratio"><?php esc_html_e( 'Traffic to Variant B (%)', 'noortemplates' ); ?></label>
-			<input
-				type="number"
-				name="noortemplates_split_ratio"
-				id="noortemplates_split_ratio"
-				min="1"
-				max="99"
-				value="<?php echo esc_attr( $ratio ? (int) $ratio : 50 ); ?>"
-				style="width:100%;"
-			/>
-		</p>
-		<p class="description">
-			<?php esc_html_e( 'Visitors are split between the layout above (Variant A) and Variant B, and stuck with a cookie. Results appear under NoorTemplates → Split Tests.', 'noortemplates' ); ?>
-		</p>
+		<?php if ( Gate::has_feature( 'split_test' ) ) : ?>
+			<?php
+			$split_enabled = '1' === get_post_meta( $post->ID, Split_Test::ENABLED_META_KEY, true );
+			$variant_b     = get_post_meta( $post->ID, Split_Test::VARIANT_B_META_KEY, true );
+			$ratio         = get_post_meta( $post->ID, Split_Test::RATIO_META_KEY, true );
+			?>
+			<p>
+				<label>
+					<input type="checkbox" name="noortemplates_split_enabled" value="1" <?php checked( $split_enabled ); ?> />
+					<?php esc_html_e( 'Split test against a second layout', 'noortemplates' ); ?>
+				</label>
+			</p>
+			<p>
+				<label for="noortemplates_layout_id_b"><?php esc_html_e( 'Variant B', 'noortemplates' ); ?></label>
+				<?php $this->render_select( 'noortemplates_layout_id_b', (int) $variant_b ); ?>
+			</p>
+			<p>
+				<label for="noortemplates_split_ratio"><?php esc_html_e( 'Traffic to Variant B (%)', 'noortemplates' ); ?></label>
+				<input
+					type="number"
+					name="noortemplates_split_ratio"
+					id="noortemplates_split_ratio"
+					min="1"
+					max="99"
+					value="<?php echo esc_attr( $ratio ? (int) $ratio : 50 ); ?>"
+					style="width:100%;"
+				/>
+			</p>
+			<p class="description">
+				<?php esc_html_e( 'Visitors are split between the layout above (Variant A) and Variant B, and stuck with a cookie. Results appear under NoorTemplates → Split Tests.', 'noortemplates' ); ?>
+			</p>
+		<?php else : ?>
+			<p>
+				<label>
+					<input type="checkbox" disabled="disabled" />
+					<?php esc_html_e( 'Split test against a second layout', 'noortemplates' ); ?>
+					<span style="display:inline-block;padding:1px 6px;margin-left:4px;background:#1c1c1c;border-radius:999px;color:#fff;font-size:10px;font-weight:600;text-transform:uppercase;vertical-align:middle;">
+						<?php esc_html_e( 'Pro', 'noortemplates' ); ?>
+					</span>
+				</label>
+			</p>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: "Upgrade to Pro" link */
+					esc_html__( 'Split testing requires NoorTemplates Pro. %s', 'noortemplates' ),
+					'<a href="' . esc_url( NOORTEMPLATES_CHECKOUT_URL ) . '" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Upgrade to Pro', 'noortemplates' ) . '</a>'
+				);
+				?>
+			</p>
+		<?php endif; ?>
 		<?php
 	}
 
@@ -160,6 +182,15 @@ class Meta_Box {
 			update_post_meta( $post_id, Resolver::PRODUCT_META_KEY, $layout_id );
 		} else {
 			delete_post_meta( $post_id, Resolver::PRODUCT_META_KEY );
+		}
+
+		// Without the split_test feature the fields are rendered disabled
+		// (so nothing is posted for them) — skip entirely rather than
+		// treat "not posted" as "user unchecked it", which would silently
+		// wipe an existing split-test configuration just because the
+		// license lapsed before someone next saved the product.
+		if ( ! Gate::has_feature( 'split_test' ) ) {
+			return;
 		}
 
 		if ( ! empty( $_POST['noortemplates_split_enabled'] ) ) {

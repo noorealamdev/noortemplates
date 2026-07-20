@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useState, useEffect, createPortal } from '@wordpress/element';
+import { useState, useEffect, useRef, createPortal } from '@wordpress/element';
 import {
 	Button,
 	Modal,
@@ -11,8 +11,7 @@ import {
 } from '@wordpress/components';
 import { parse, cloneBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect, select } from '@wordpress/data';
-import { BlockPreview } from '@wordpress/block-editor';
-import { layout, image as imagePlaceholder, seen } from '@wordpress/icons';
+import { layout, image as imagePlaceholder } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -20,6 +19,14 @@ const LAYOUT_POST_TYPE = 'noortemplates_layout';
 
 // Delay, in ms, before a search keystroke triggers a new request.
 const SEARCH_DEBOUNCE = 300;
+
+// Localized by Assets\Manager::enqueue_editor_assets() from
+// Licensing\Gate — the same check the REST layer uses to refuse a Pro
+// template's full content (Rest\Templates_Controller::get_template()).
+const LICENSING = window.noorTemplatesLicensing || {
+	isPro: false,
+	checkoutUrl: '',
+};
 
 // Renders children into a container appended to the editor header toolbar.
 function ToolbarPortal( { children } ) {
@@ -49,8 +56,13 @@ function ToolbarPortal( { children } ) {
 
 // A single template card. Shows a static thumbnail (or a placeholder) so
 // the grid stays cheap to render even with hundreds of templates; the full
-// block content is only fetched when the card is applied or previewed.
-function TemplateCard( { template, isBusy, onSelect, onPreview } ) {
+// block content is only fetched when the card is applied. Pro templates
+// are still shown to everyone as an upsell (this plugin ships one
+// codebase — nothing is stripped for a Free build), just refused by the
+// server when applied without an active license.
+function TemplateCard( { template, isBusy, onSelect } ) {
+	const isLocked = template.is_pro && ! LICENSING.isPro;
+
 	return (
 		<div className="noortemplates-library__card">
 			<button
@@ -77,17 +89,18 @@ function TemplateCard( { template, isBusy, onSelect, onPreview } ) {
 					</span>
 				) }
 				<span className="noortemplates-library__card-action">
-					{ template.type === 'layout'
+					{ isLocked
+						? __( 'Upgrade to Pro', 'noortemplates' )
+						: template.type === 'layout'
 						? __( 'Use Layout', 'noortemplates' )
 						: __( 'Insert Section', 'noortemplates' ) }
 				</span>
 			</button>
-			<Button
-				className="noortemplates-library__card-preview-button"
-				icon={ seen }
-				label={ __( 'Preview', 'noortemplates' ) }
-				onClick={ () => onPreview( template ) }
-			/>
+			{ isLocked && (
+				<span className="noortemplates-library__card-badge">
+					{ __( 'Pro', 'noortemplates' ) }
+				</span>
+			) }
 			<div className="noortemplates-library__card-title">
 				{ template.title }
 			</div>
@@ -97,6 +110,92 @@ function TemplateCard( { template, isBusy, onSelect, onPreview } ) {
 				</div>
 			) }
 		</div>
+	);
+}
+
+// A small modal for exporting the Layout currently open in the editor as a
+// downloadable .json template file — entirely client-side, no server round
+// trip, since the file is meant to be manually dropped into the plugin's
+// templates/ folder to ship as a bundled premade template. Reads the live
+// editor content (including unsaved edits) at export time.
+function ExportTemplateModal( { onClose } ) {
+	const [ title, setTitle ] = useState( '' );
+	const [ type, setType ] = useState( 'layout' );
+	const [ category, setCategory ] = useState( '' );
+	const [ error, setError ] = useState( '' );
+
+	const handleExport = () => {
+		if ( ! title.trim() ) {
+			setError( __( 'Please enter a title.', 'noortemplates' ) );
+			return;
+		}
+
+		const template = {
+			title,
+			description: '',
+			type,
+			category: category || type,
+			content: select( 'core/editor' ).getEditedPostContent(),
+		};
+
+		const slug =
+			title
+				.toLowerCase()
+				.trim()
+				.replace( /[^a-z0-9]+/g, '-' )
+				.replace( /^-+|-+$/g, '' ) || 'template';
+
+		const blob = new Blob( [ JSON.stringify( template, null, 2 ) ], {
+			type: 'application/json',
+		} );
+		const url = URL.createObjectURL( blob );
+		const link = document.createElement( 'a' );
+
+		link.href = url;
+		link.download = `${ slug }.json`;
+		document.body.appendChild( link );
+		link.click();
+		document.body.removeChild( link );
+		URL.revokeObjectURL( url );
+
+		onClose();
+	};
+
+	return (
+		<Modal
+			title={ __( 'Export as JSON', 'noortemplates' ) }
+			onRequestClose={ onClose }
+			className="noortemplates-library__export-modal"
+		>
+			{ error && (
+				<Notice status="error" isDismissible={ false }>
+					{ error }
+				</Notice>
+			) }
+			<TextControl
+				label={ __( 'Title', 'noortemplates' ) }
+				value={ title }
+				onChange={ setTitle }
+			/>
+			<SelectControl
+				label={ __( 'Type', 'noortemplates' ) }
+				value={ type }
+				onChange={ setType }
+				options={ [
+					{ value: 'layout', label: __( 'Full Layout', 'noortemplates' ) },
+					{ value: 'section', label: __( 'Section', 'noortemplates' ) },
+				] }
+			/>
+			<TextControl
+				label={ __( 'Category (optional)', 'noortemplates' ) }
+				value={ category }
+				onChange={ setCategory }
+				placeholder={ __( 'e.g. jewelry', 'noortemplates' ) }
+			/>
+			<Button variant="primary" onClick={ handleExport }>
+				{ __( 'Download JSON', 'noortemplates' ) }
+			</Button>
+		</Modal>
 	);
 }
 
@@ -122,6 +221,7 @@ function isPostEmpty() {
  */
 export default function Library() {
 	const [ isOpen, setOpen ] = useState( false );
+	const [ isExportOpen, setExportOpen ] = useState( false );
 	const [ type, setType ] = useState( 'layout' );
 	const [ category, setCategory ] = useState( '' );
 	const [ search, setSearch ] = useState( '' );
@@ -130,9 +230,8 @@ export default function Library() {
 	const [ categoryOptions, setCategoryOptions ] = useState( [] );
 	const [ hasError, setHasError ] = useState( false );
 	const [ applyingName, setApplyingName ] = useState( null );
-	const [ preview, setPreview ] = useState( null );
-	const [ previewLoading, setPreviewLoading ] = useState( false );
 	const { resetBlocks, insertBlocks } = useDispatch( 'core/block-editor' );
+	const importInputRef = useRef( null );
 
 	const isLayoutEditor = useSelect(
 		( selectStore ) =>
@@ -236,6 +335,13 @@ export default function Library() {
 		apiFetch( { path: `/noortemplates/v1/templates/${ name }` } );
 
 	const handleSelect = ( template ) => {
+		if ( template.is_pro && ! LICENSING.isPro ) {
+			if ( LICENSING.checkoutUrl ) {
+				window.open( LICENSING.checkoutUrl, '_blank', 'noopener' );
+			}
+			return;
+		}
+
 		setApplyingName( template.name );
 
 		fetchFullTemplate( template.name )
@@ -246,15 +352,43 @@ export default function Library() {
 			.finally( () => setApplyingName( null ) );
 	};
 
-	const handlePreview = ( template ) => {
-		setPreviewLoading( true );
+	// Reads a locally-picked .json template file (e.g. one previously
+	// downloaded via "Export as JSON") and applies it the same way a
+	// library template is applied — entirely client-side, no server
+	// round trip.
+	const handleImportFile = ( event ) => {
+		const file = event.target.files && event.target.files[ 0 ];
 
-		fetchFullTemplate( template.name )
-			.then( ( full ) => {
-				setPreview( { template: full, blocks: parse( full.content ) } );
+		// Reset so picking the same file again still fires a change event.
+		event.target.value = '';
+
+		if ( ! file ) {
+			return;
+		}
+
+		file.text()
+			.then( ( text ) => {
+				const data = JSON.parse( text );
+
+				if (
+					! data ||
+					typeof data.content !== 'string' ||
+					! [ 'layout', 'section' ].includes( data.type )
+				) {
+					throw new Error( 'Invalid template file' );
+				}
+
+				applyTemplate( data, parse( data.content ) );
 			} )
-			.catch( () => setHasError( true ) )
-			.finally( () => setPreviewLoading( false ) );
+			.catch( () => {
+				// eslint-disable-next-line no-alert
+				window.alert(
+					__(
+						"That file doesn't look like a valid NoorTemplates JSON template.",
+						'noortemplates'
+					)
+				);
+			} );
 	};
 
 	const tabs = [
@@ -311,7 +445,6 @@ export default function Library() {
 								template={ template }
 								isBusy={ applyingName === template.name }
 								onSelect={ handleSelect }
-								onPreview={ handlePreview }
 							/>
 						) ) }
 					</div>
@@ -331,7 +464,32 @@ export default function Library() {
 				>
 					{ __( 'NoorTemplates', 'noortemplates' ) }
 				</Button>
+				<Button
+					variant="secondary"
+					size="compact"
+					onClick={ () => setExportOpen( true ) }
+				>
+					{ __( 'Export as JSON', 'noortemplates' ) }
+				</Button>
+				<Button
+					variant="secondary"
+					size="compact"
+					onClick={ () => importInputRef.current?.click() }
+				>
+					{ __( 'Import JSON', 'noortemplates' ) }
+				</Button>
+				<input
+					ref={ importInputRef }
+					type="file"
+					accept="application/json,.json"
+					className="noortemplates-library__import-input"
+					onChange={ handleImportFile }
+				/>
 			</ToolbarPortal>
+
+			{ isExportOpen && (
+				<ExportTemplateModal onClose={ () => setExportOpen( false ) } />
+			) }
 
 			{ isOpen && (
 				<Modal
@@ -354,22 +512,6 @@ export default function Library() {
 						{ () => renderContent() }
 					</TabPanel>
 				</Modal>
-			) }
-
-			{ preview && (
-				<Modal
-					title={ preview.template.title }
-					onRequestClose={ () => setPreview( null ) }
-					className="noortemplates-library__preview-modal"
-				>
-					<BlockPreview blocks={ preview.blocks } viewportWidth={ 1400 } />
-				</Modal>
-			) }
-
-			{ previewLoading && ! preview && (
-				<div className="noortemplates-library__preview-loading">
-					<Spinner />
-				</div>
 			) }
 		</>
 	);

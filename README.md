@@ -40,12 +40,12 @@ Builds the assets and produces `noortemplates.zip` containing only the distribut
   - `Layouts\Resolver` — resolves which Layout applies to a product: product meta → category default → site-wide default → none
   - `Layouts\Meta_Box` — the product/category assignment UI
   - `Layouts\Template_Override` — swaps in `templates/single-product-layout.php` on `template_include` when a Layout resolves
-  - `Patterns\Manager` — auto-registers `patterns/sections/*.php` and `patterns/layouts/*.php`; feeds the template library
+  - `Patterns\Manager` — auto-registers every `templates/library/*.json` file; feeds the template library
   - `Assets\Manager` — enqueues the template library app in the editor
   - `Admin\Dashboard` — block enable/disable settings + site-wide default Layout
 - `src/blocks/<name>/` — block sources (block.json apiVersion 3, edit/save, SCSS). Layout primitives (Container, Heading, Button, Accordion, Tabs) are generic; the `product-*` and `related-products` blocks are thin dynamic wrappers around WooCommerce's own `woocommerce_template_single_*()` functions, so variations, stock and reviews keep working exactly as WooCommerce implements them.
-- `src/library/` — the editor Template Library app (Templates button in the top bar), shown only while editing a Product Layout
-- `patterns/` — section and layout templates; layout templates compose sections via `Patterns\Manager::get_section_content()`
+- `src/library/` — the editor Template Library app (NoorTemplates/Export as JSON buttons in the top bar), shown only while editing a Product Layout
+- `templates/library/` — premade demo template JSON files; layout templates compose sections via `Patterns\Manager::get_section_content()`
 
 ### Adding a block
 
@@ -53,4 +53,4 @@ Copy an existing folder in `src/blocks/`, rename the block in its `block.json`, 
 
 ### Adding a section or layout template
 
-Drop a new `.php` file returning a pattern array into `patterns/sections/` or `patterns/layouts/`. It is registered and appears in the template library automatically — no rebuild needed.
+Build it in a Product Layout, click "Export as JSON" in the toolbar to download a `.json` file, then drop that file into `templates/library/` (optionally add a matching thumbnail image at `templates/library/thumbnails/{file name}.png`). It's registered and appears in the template library automatically — no rebuild needed.

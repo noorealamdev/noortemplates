@@ -40,7 +40,9 @@ class Install {
 		// Unconditional: get_migrations() never runs on a fresh install
 		// (maybe_upgrade() only applies migrations when upgrading FROM a
 		// known previous version), so the table must also be created here
-		// directly. dbDelta() is safe to call repeatedly.
+		// directly. dbDelta() is safe to call repeatedly. The table itself
+		// isn't Pro-gated — Split_Test's actual behavior is (see
+		// Licensing\Gate) — so it's fine to always exist.
 		Split_Test_Stats::create_table();
 
 		self::maybe_upgrade();

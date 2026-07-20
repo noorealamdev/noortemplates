@@ -9,6 +9,7 @@ namespace NoorTemplates\Rest;
 
 use NoorTemplates\Traits\Singleton;
 use NoorTemplates\Templates\Repository;
+use NoorTemplates\Licensing\Gate;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -116,6 +117,17 @@ class Templates_Controller {
 				'noortemplates_template_not_found',
 				__( 'Template not found.', 'noortemplates' ),
 				array( 'status' => 404 )
+			);
+		}
+
+		// Mirrors NoorQuiz's TemplatesController::use_template() exactly:
+		// the list stays unfiltered (an upsell — everyone sees Pro
+		// templates exist), full content is refused without a license.
+		if ( ! empty( $template['is_pro'] ) && ! Gate::is_pro() ) {
+			return new \WP_Error(
+				'noortemplates_pro_required',
+				__( 'This template requires NoorTemplates Pro.', 'noortemplates' ),
+				array( 'status' => 403 )
 			);
 		}
 

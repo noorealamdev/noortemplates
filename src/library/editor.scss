@@ -1,7 +1,12 @@
 .noortemplates-library__toolbar-wrap {
 	display: flex;
 	align-items: center;
+	gap: 8px;
 	margin-left: 8px;
+}
+
+.noortemplates-library__import-input {
+	display: none;
 }
 
 .noortemplates-library__modal {
@@ -11,8 +16,7 @@
 	}
 }
 
-.noortemplates-library__loading,
-.noortemplates-library__preview-loading {
+.noortemplates-library__loading {
 	display: flex;
 	justify-content: center;
 	padding: 64px 0;
@@ -65,7 +69,11 @@
 	position: relative;
 	display: block;
 	width: 100%;
-	height: 280px;
+	// Matches the recommended thumbnail shape (e.g. a 500x1000px screenshot
+	// of the top portion of a page) — a fixed height with object-fit:cover
+	// was cropping tall preview images down to a thin middle slice instead
+	// of showing what the layout actually looks like.
+	aspect-ratio: 1 / 2;
 	padding: 0;
 	overflow: hidden;
 	background: #fff;
@@ -78,7 +86,9 @@
 		display: block;
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		// contain, not cover: never crops, even if a given thumbnail's
+		// aspect ratio doesn't exactly match 1:2 (letterboxes instead).
+		object-fit: contain;
 	}
 
 	&:hover,
@@ -111,6 +121,20 @@
 	}
 }
 
+.noortemplates-library__card-badge {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	padding: 2px 8px;
+	background: #1c1c1c;
+	border-radius: 999px;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
 .noortemplates-library__card-spinner {
 	position: absolute;
 	inset: 0;
@@ -118,21 +142,6 @@
 	align-items: center;
 	justify-content: center;
 	background: rgba(255, 255, 255, 0.6);
-}
-
-.noortemplates-library__card-preview-button {
-	position: absolute;
-	top: 8px;
-	right: 8px;
-	background: #fff;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-	opacity: 0;
-	transition: opacity 0.15s ease-in-out;
-}
-
-.noortemplates-library__card:hover .noortemplates-library__card-preview-button,
-.noortemplates-library__card-preview-button:focus-visible {
-	opacity: 1;
 }
 
 .noortemplates-library__card-title {

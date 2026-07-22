@@ -22,7 +22,8 @@ while ( have_posts() ) :
 	global $product;
 	$product = wc_get_product( get_the_ID() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- $product is WooCommerce's own global.
 
-	// Mirrors WooCommerce's own content-single-product.php wrapping hooks
+	// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- explanatory prose, not commented-out code; it just mentions a filename and hook names.
+	// Mirrors WooCommerce's own wrapping hooks around content-single-product
 	// (empty by default) so plugins that hook onto them — structured data,
 	// "recently viewed" trackers, page-builder compatibility layers — still
 	// fire around a NoorTemplates layout exactly as they would around the
@@ -32,7 +33,9 @@ while ( have_posts() ) :
 	$noortemplates_layout = Resolver::instance()->get_layout( get_the_ID() );
 
 	if ( $noortemplates_layout ) {
+		echo '<div class="noortemplates-layout">';
 		echo do_blocks( $noortemplates_layout->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- block content is sanitized like any other post content.
+		echo '</div>';
 	}
 
 	do_action( 'woocommerce_after_single_product' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce's own hook.

@@ -9,6 +9,16 @@
 	"keywords": [ "tabs", "tabbed", "toggle" ],
 	"version": "1.0.0",
 	"textdomain": "noortemplates",
+	"attributes": {
+		"boxed": {
+			"type": "boolean",
+			"default": true
+		},
+		"boxedWidth": {
+			"type": "number",
+			"default": 1200
+		}
+	},
 	"supports": {
 		"align": [ "wide" ],
 		"anchor": true,

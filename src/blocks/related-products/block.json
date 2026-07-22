@@ -22,6 +22,14 @@
         "columns": {
             "type": "number",
             "default": 4
+        },
+        "boxed": {
+            "type": "boolean",
+            "default": true
+        },
+        "boxedWidth": {
+            "type": "number",
+            "default": 1200
         }
     },
     "supports": {

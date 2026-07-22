@@ -17,6 +17,7 @@ import {
 	FontSizePicker,
 	RangeControl,
 	ColorPalette,
+	ToggleControl,
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
@@ -42,6 +43,8 @@ export default function Edit( { attributes, setAttributes } ) {
 		textAlign,
 		headingFontSize,
 		subheadingFontSize,
+		boxed,
+		boxedWidth,
 	} = attributes;
 	const [ fontSizes ] = useSettings( 'typography.fontSizes' );
 	const [ colors = [] ] = useSettings( 'color.palette' );
@@ -262,6 +265,37 @@ export default function Edit( { attributes, setAttributes } ) {
 						/>
 					</BaseControl>
 				</PanelBody>
+
+				<PanelBody title={ __( 'Layout', 'noortemplates' ) } initialOpen={ false }>
+					<ToggleControl
+						label={ __( 'Boxed width', 'noortemplates' ) }
+						checked={ boxed }
+						onChange={ ( value ) => setAttributes( { boxed: value } ) }
+						help={
+							boxed
+								? __(
+										'Heading, subheading and buttons are constrained to a max width and centered.',
+										'noortemplates'
+								  )
+								: __(
+										'Heading, subheading and buttons stretch the full width of the hero.',
+										'noortemplates'
+								  )
+						}
+					/>
+					{ boxed && (
+						<RangeControl
+							label={ __( 'Max width (px)', 'noortemplates' ) }
+							value={ boxedWidth }
+							onChange={ ( value ) =>
+								setAttributes( { boxedWidth: value } )
+							}
+							min={ 480 }
+							max={ 1800 }
+							step={ 10 }
+						/>
+					) }
+				</PanelBody>
 			</InspectorControls>
 
 			<div { ...blockProps }>
@@ -284,38 +318,46 @@ export default function Edit( { attributes, setAttributes } ) {
 						} }
 					/>
 				) }
-				<RichText
-					tagName="h1"
-					className="noortemplates-hero__heading"
-					style={
-						headingFontSize
-							? { fontSize: headingFontSize }
-							: undefined
+				<div
+					className={
+						'noortemplates-hero__content' +
+						( boxed ? ' is-boxed' : '' )
 					}
-					value={ heading }
-					onChange={ ( value ) =>
-						setAttributes( { heading: value } )
-					}
-					placeholder={ __( 'Your Hero Heading', 'noortemplates' ) }
-				/>
-				<RichText
-					tagName="p"
-					className="noortemplates-hero__subheading"
-					style={
-						subheadingFontSize
-							? { fontSize: subheadingFontSize }
-							: undefined
-					}
-					value={ subheading }
-					onChange={ ( value ) =>
-						setAttributes( { subheading: value } )
-					}
-					placeholder={ __(
-						'Add a supporting subheading…',
-						'noortemplates'
-					) }
-				/>
-				<div { ...innerBlocksProps } />
+					style={ boxed ? { maxWidth: boxedWidth } : undefined }
+				>
+					<RichText
+						tagName="h1"
+						className="noortemplates-hero__heading"
+						style={
+							headingFontSize
+								? { fontSize: headingFontSize }
+								: undefined
+						}
+						value={ heading }
+						onChange={ ( value ) =>
+							setAttributes( { heading: value } )
+						}
+						placeholder={ __( 'Your Hero Heading', 'noortemplates' ) }
+					/>
+					<RichText
+						tagName="p"
+						className="noortemplates-hero__subheading"
+						style={
+							subheadingFontSize
+								? { fontSize: subheadingFontSize }
+								: undefined
+						}
+						value={ subheading }
+						onChange={ ( value ) =>
+							setAttributes( { subheading: value } )
+						}
+						placeholder={ __(
+							'Add a supporting subheading…',
+							'noortemplates'
+						) }
+					/>
+					<div { ...innerBlocksProps } />
+				</div>
 			</div>
 		</>
 	);

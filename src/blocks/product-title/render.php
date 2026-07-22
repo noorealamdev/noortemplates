@@ -19,6 +19,7 @@ $product = wc_get_product( get_the_ID() ); // phpcs:ignore WordPress.NamingConve
 if ( ! $product ) {
 	return;
 }
+
 /*
  * WooCommerce's own default callbacks on this hook — the sale-flash badge
  * and (critically) the entire product gallery — are temporarily removed

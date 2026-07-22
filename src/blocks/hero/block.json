@@ -61,8 +61,15 @@
 			"default": ""
 		},
 		"align": {
-			"type": "string",
-			"default": "full"
+			"type": "string"
+		},
+		"boxed": {
+			"type": "boolean",
+			"default": true
+		},
+		"boxedWidth": {
+			"type": "number",
+			"default": 700
 		},
 		"style": {
 			"type": "object",

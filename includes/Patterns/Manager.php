@@ -256,7 +256,8 @@ class Manager {
 		$cached      = get_transient( self::CACHE_KEY );
 
 		if ( is_array( $cached ) && isset( $cached['fingerprint'], $cached['patterns'] ) && $cached['fingerprint'] === $fingerprint ) {
-			return $this->patterns = $cached['patterns'];
+			$this->patterns = $cached['patterns'];
+			return $this->patterns;
 		}
 
 		$patterns = $this->scan_patterns();
@@ -270,7 +271,8 @@ class Manager {
 			DAY_IN_SECONDS
 		);
 
-		return $this->patterns = $patterns;
+		$this->patterns = $patterns;
+		return $this->patterns;
 	}
 
 	/**
@@ -349,7 +351,8 @@ class Manager {
 			$dir_is_pro = ( $dir !== $own_dir );
 
 			foreach ( $this->glob_pattern_files( $dir ) as $file ) {
-				$pattern = json_decode( (string) file_get_contents( $file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_file_get_contents
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- reading this plugin's own bundled local template files, not a remote URL.
+				$pattern = json_decode( (string) file_get_contents( $file ), true );
 
 				if ( ! is_array( $pattern ) || empty( $pattern['content'] ) || empty( $pattern['type'] ) ) {
 					continue;

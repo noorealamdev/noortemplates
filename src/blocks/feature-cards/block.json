@@ -48,6 +48,14 @@
         "cardPadding": {
             "type": "number",
             "default": 0
+        },
+        "boxed": {
+            "type": "boolean",
+            "default": true
+        },
+        "boxedWidth": {
+            "type": "number",
+            "default": 1200
         }
     },
     "supports": {

@@ -91,11 +91,15 @@ $noortemplates_wrapper     = get_block_wrapper_attributes();
 		<?php if ( $noortemplates_multiple && $noortemplates_show_thumbs ) : ?>
 			<div class="noortemplates-product-gallery-carousel__thumbs">
 				<?php foreach ( $noortemplates_image_ids as $noortemplates_index => $noortemplates_id ) : ?>
+					<?php
+					/* translators: %d: image number in the gallery. */
+					$noortemplates_thumb_label = sprintf( __( 'Show image %d', 'noortemplates' ), $noortemplates_index + 1 );
+					?>
 					<button
 						type="button"
 						class="noortemplates-product-gallery-carousel__thumb<?php echo 0 === $noortemplates_index ? ' is-active' : ''; ?>"
 						data-slide-index="<?php echo esc_attr( $noortemplates_index ); ?>"
-						aria-label="<?php echo esc_attr( sprintf( __( 'Show image %d', 'noortemplates' ), $noortemplates_index + 1 ) ); ?>"
+						aria-label="<?php echo esc_attr( $noortemplates_thumb_label ); ?>"
 					>
 						<?php
 						echo wp_get_attachment_image( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped.
@@ -111,11 +115,15 @@ $noortemplates_wrapper     = get_block_wrapper_attributes();
 		<?php elseif ( $noortemplates_multiple ) : ?>
 			<div class="noortemplates-product-gallery-carousel__dots">
 				<?php foreach ( $noortemplates_image_ids as $noortemplates_index => $noortemplates_id ) : ?>
+					<?php
+					/* translators: %d: image number in the gallery. */
+					$noortemplates_dot_label = sprintf( __( 'Show image %d', 'noortemplates' ), $noortemplates_index + 1 );
+					?>
 					<button
 						type="button"
 						class="noortemplates-product-gallery-carousel__dot<?php echo 0 === $noortemplates_index ? ' is-active' : ''; ?>"
 						data-slide-index="<?php echo esc_attr( $noortemplates_index ); ?>"
-						aria-label="<?php echo esc_attr( sprintf( __( 'Show image %d', 'noortemplates' ), $noortemplates_index + 1 ) ); ?>"
+						aria-label="<?php echo esc_attr( $noortemplates_dot_label ); ?>"
 					></button>
 				<?php endforeach; ?>
 			</div>

@@ -44,9 +44,23 @@ while ( $noortemplates_panels->next_tag( array( 'class_name' => 'noortemplates-t
 }
 
 $noortemplates_content = $noortemplates_panels->get_updated_html();
+
+// Self-contained max-width instead of relying on the theme/template to
+// constrain block content. Applied to this block's own wrapper — save.js
+// stores only the panel inner blocks with no wrapper of its own, so
+// changing what render.php builds here carries no validation/deprecation
+// risk at all.
+$noortemplates_boxed        = ! isset( $attributes['boxed'] ) || (bool) $attributes['boxed'];
+$noortemplates_boxed_width  = isset( $attributes['boxedWidth'] ) ? absint( $attributes['boxedWidth'] ) : 1200;
+$noortemplates_wrapper_args = array();
+
+if ( $noortemplates_boxed ) {
+	$noortemplates_wrapper_args['class'] = 'is-boxed';
+	$noortemplates_wrapper_args['style'] = 'max-width:' . $noortemplates_boxed_width . 'px';
+}
 ?>
 <div
-	<?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped. ?>
+	<?php echo get_block_wrapper_attributes( $noortemplates_wrapper_args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped. ?>
 	data-wp-interactive="noortemplates/tabs"
 	data-wp-context="<?php echo esc_attr( (string) wp_json_encode( $noortemplates_context ) ); ?>"
 >

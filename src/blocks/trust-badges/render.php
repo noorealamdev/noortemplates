@@ -26,9 +26,17 @@ if ( empty( $noortemplates_items ) ) {
  * values (set once via Inspector, no code needed) give the same look.
  */
 $noortemplates_wrapper = get_block_wrapper_attributes();
+
+$noortemplates_boxed       = ! isset( $attributes['boxed'] ) || (bool) $attributes['boxed'];
+$noortemplates_boxed_width = isset( $attributes['boxedWidth'] ) ? absint( $attributes['boxedWidth'] ) : 1200;
 ?>
 <div <?php echo $noortemplates_wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped. ?>>
-	<ul class="noortemplates-trust-badges__list">
+	<ul
+		class="noortemplates-trust-badges__list<?php echo $noortemplates_boxed ? ' is-boxed' : ''; ?>"
+		<?php if ( $noortemplates_boxed ) : ?>
+			style="max-width:<?php echo esc_attr( $noortemplates_boxed_width ); ?>px"
+		<?php endif; ?>
+	>
 		<?php foreach ( $noortemplates_items as $noortemplates_item ) : ?>
 			<li class="noortemplates-trust-badges__item">
 				<?php if ( ! empty( $noortemplates_item['icon'] ) ) : ?>

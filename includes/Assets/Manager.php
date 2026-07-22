@@ -74,6 +74,45 @@ class Manager {
 		}
 
 		$this->enqueue_built_script( 'noortemplates-extensions-view', 'extensions/view', false );
+		$this->enqueue_layout_base_styles();
+	}
+
+	/**
+	 * Small, universal safety-net styles a Layout needs regardless of which
+	 * theme is active. Both halves exist because the relevant behavior is
+	 * NOT guaranteed by WordPress core — it's ordinarily up to the active
+	 * theme, and this plugin can't assume any particular theme is running:
+	 *
+	 * - A horizontal gutter on small screens for normal (non-`alignfull`)
+	 *   content, regardless of whether individual blocks/groups were given
+	 *   their own padding.
+	 * - `alignfull`'s actual "break out to the viewport edge" mechanism.
+	 *   Core only defines the `alignfull` class; the CSS that makes it
+	 *   visually full-width is written by each theme (gated behind
+	 *   `add_theme_support('align-wide')`) — a theme that doesn't provide
+	 *   it leaves `alignfull` sections completely inert.
+	 *
+	 * @return void
+	 */
+	private function enqueue_layout_base_styles() {
+		wp_register_style( 'noortemplates-layout-base', false, array(), NOORTEMPLATES_VERSION );
+		wp_enqueue_style( 'noortemplates-layout-base' );
+		wp_add_inline_style(
+			'noortemplates-layout-base',
+			'.noortemplates-layout .alignfull {
+				margin-left: calc(50% - 50vw);
+				margin-right: calc(50% - 50vw);
+				max-width: 100vw;
+				width: 100vw;
+			}
+			@media (max-width: 600px) {
+				.noortemplates-layout {
+					padding-left: var(--wp--preset--spacing--50, 1rem);
+					padding-right: var(--wp--preset--spacing--50, 1rem);
+					box-sizing: border-box;
+				}
+			}'
+		);
 	}
 
 	/**

@@ -3,6 +3,11 @@
 	gap: 2rem;
 	grid-template-columns: 1fr;
 
+	&.is-boxed {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
 	@media ( min-width: 600px ) {
 
 		&.columns-2,

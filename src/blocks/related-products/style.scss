@@ -13,6 +13,11 @@
 // always win regardless of where a theme's own CSS lands in the page.
 .wp-block-noortemplates-related-products.wp-block-noortemplates-related-products {
 
+	.noortemplates-related-products__inner.is-boxed {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
 	.related.products {
 
 		> h2 {

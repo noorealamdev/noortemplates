@@ -22,6 +22,14 @@
             "selector": "h2",
             "default": "Compare Options"
         },
+        "boxed": {
+            "type": "boolean",
+            "default": true
+        },
+        "boxedWidth": {
+            "type": "number",
+            "default": 1000
+        },
         "style": {
             "type": "object",
             "default": {

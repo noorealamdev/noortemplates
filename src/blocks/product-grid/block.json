@@ -48,6 +48,30 @@
         "showAddToCart": {
             "type": "boolean",
             "default": true
+        },
+        "boxed": {
+            "type": "boolean",
+            "default": true
+        },
+        "boxedWidth": {
+            "type": "number",
+            "default": 1200
+        },
+        "noortemplatesVisibility": {
+            "type": "object",
+            "default": {
+                "hideOnMobile": false,
+                "hideOnTablet": false,
+                "hideOnDesktop": false
+            }
+        },
+        "noortemplatesAnimation": {
+            "type": "object",
+            "default": {
+                "type": "none",
+                "duration": 600,
+                "delay": 0
+            }
         }
     },
     "supports": {

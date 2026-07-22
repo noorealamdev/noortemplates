@@ -48,12 +48,24 @@ $noortemplates_card_style = sprintf(
 $noortemplates_has_own_text_color = ! empty( $attributes['textColor'] ) || ! empty( $attributes['style']['color']['text'] );
 $noortemplates_text_style         = $noortemplates_has_own_text_color ? '' : 'color:#fff;';
 
+// Self-contained max-width instead of relying on the theme/template to
+// constrain block content — applied to the inner `__list` grid, not this
+// block's own wrapper, since the wrapper only carries the columns CSS
+// variable and isn't itself the grid container.
+$noortemplates_boxed       = ! isset( $attributes['boxed'] ) || (bool) $attributes['boxed'];
+$noortemplates_boxed_width = isset( $attributes['boxedWidth'] ) ? absint( $attributes['boxedWidth'] ) : 1200;
+
 $noortemplates_wrapper = get_block_wrapper_attributes(
 	array( 'style' => '--noortemplates-feature-cards-columns:' . $noortemplates_columns . ';' )
 );
 ?>
 <div <?php echo $noortemplates_wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped. ?>>
-	<div class="noortemplates-feature-cards__list">
+	<div
+		class="noortemplates-feature-cards__list<?php echo $noortemplates_boxed ? ' is-boxed' : ''; ?>"
+		<?php if ( $noortemplates_boxed ) : ?>
+			style="max-width:<?php echo esc_attr( $noortemplates_boxed_width ); ?>px"
+		<?php endif; ?>
+	>
 		<?php foreach ( $noortemplates_items as $noortemplates_item ) : ?>
 			<div class="noortemplates-feature-cards__item" style="<?php echo esc_attr( $noortemplates_card_style ); ?>">
 				<div class="noortemplates-feature-cards__heading" style="<?php echo esc_attr( $noortemplates_text_style ); ?>"><?php echo wp_kses_post( $noortemplates_item['heading'] ?? '' ); ?></div>

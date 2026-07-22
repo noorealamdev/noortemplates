@@ -18,6 +18,14 @@
         "allowMultiple": {
             "type": "boolean",
             "default": false
+        },
+        "boxed": {
+            "type": "boolean",
+            "default": true
+        },
+        "boxedWidth": {
+            "type": "number",
+            "default": 800
         }
     },
     "supports": {

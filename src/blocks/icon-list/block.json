@@ -14,8 +14,16 @@
 			"type": "array",
 			"default": [
 				{ "icon": "calendar", "text": "Estimated Delivery : Up to 4 business days" },
-				{ "icon": "box", "text": "Free Shipping & Returns : On all orders over $200" }
+				{ "icon": "box", "text": "Free Shipping and Returns : On all orders over $200" }
 			]
+		},
+		"boxed": {
+			"type": "boolean",
+			"default": true
+		},
+		"boxedWidth": {
+			"type": "number",
+			"default": 800
 		}
 	},
 	"supports": {

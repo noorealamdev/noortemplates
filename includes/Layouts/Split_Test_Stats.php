@@ -72,7 +72,8 @@ class Split_Test_Stats {
 
 		$table_name = self::table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $table_name is our own fixed identifier, not user input.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// $table_name is our own prefixed table identifier, not user input; every value placeholder is passed through prepare().
 		$wpdb->query(
 			$wpdb->prepare(
 				"INSERT INTO {$table_name} (product_id, variant, metric, count) VALUES (%d, %s, %s, 1)
@@ -82,6 +83,7 @@ class Split_Test_Stats {
 				$metric
 			)
 		);
+		// phpcs:enable
 	}
 
 	/**
@@ -101,13 +103,15 @@ class Split_Test_Stats {
 			'b' => array_fill_keys( $metrics, 0 ),
 		);
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $table_name is our own fixed identifier, not user input.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// $table_name is our own prefixed table identifier, not user input; the product_id value is passed through prepare().
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT variant, metric, count FROM {$table_name} WHERE product_id = %d",
 				$product_id
 			)
 		);
+		// phpcs:enable
 
 		foreach ( (array) $rows as $row ) {
 			if ( isset( $stats[ $row->variant ][ $row->metric ] ) ) {
@@ -129,9 +133,11 @@ class Split_Test_Stats {
 
 		$table_name = self::table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $table_name is our own fixed identifier, not user input.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+		// $table_name is our own prefixed table identifier, not user input; the product_id value is passed through prepare().
 		$wpdb->query(
 			$wpdb->prepare( "DELETE FROM {$table_name} WHERE product_id = %d", $product_id )
 		);
+		// phpcs:enable
 	}
 }

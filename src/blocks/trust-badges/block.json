@@ -18,6 +18,14 @@
 				{ "icon": "nt-capsule", "label": "Vegan Friendly" },
 				{ "icon": "nt-medal", "label": "GMP Certified" }
 			]
+		},
+		"boxed": {
+			"type": "boolean",
+			"default": true
+		},
+		"boxedWidth": {
+			"type": "number",
+			"default": 1200
 		}
 	},
 	"supports": {

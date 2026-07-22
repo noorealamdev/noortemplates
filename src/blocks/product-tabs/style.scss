@@ -3,6 +3,11 @@
 // and intentionally renders no markup of its own to style against).
 .wp-block-noortemplates-product-tabs {
 
+	.noortemplates-product-tabs__inner.is-boxed {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
 	.woocommerce-tabs {
 		margin-top: 1rem;
 	}

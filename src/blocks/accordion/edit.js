@@ -4,7 +4,7 @@ import {
 	useInnerBlocksProps,
 	InspectorControls,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import { PanelBody, ToggleControl, RangeControl } from '@wordpress/components';
 
 const TEMPLATE = [
 	[ 'noortemplates/accordion-item' ],
@@ -12,8 +12,11 @@ const TEMPLATE = [
 ];
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { allowMultiple } = attributes;
-	const blockProps = useBlockProps();
+	const { allowMultiple, boxed, boxedWidth } = attributes;
+	const blockProps = useBlockProps( {
+		className: boxed ? 'is-boxed' : undefined,
+		style: boxed ? { maxWidth: boxedWidth } : undefined,
+	} );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: [ 'noortemplates/accordion-item' ],
 		template: TEMPLATE,
@@ -39,6 +42,36 @@ export default function Edit( { attributes, setAttributes } ) {
 							setAttributes( { allowMultiple: value } )
 						}
 					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Layout', 'noortemplates' ) } initialOpen={ false }>
+					<ToggleControl
+						label={ __( 'Boxed width', 'noortemplates' ) }
+						checked={ boxed }
+						onChange={ ( value ) => setAttributes( { boxed: value } ) }
+						help={
+							boxed
+								? __(
+										'Constrained to a max width and centered.',
+										'noortemplates'
+								  )
+								: __(
+										'Stretches the full width of its container.',
+										'noortemplates'
+								  )
+						}
+					/>
+					{ boxed && (
+						<RangeControl
+							label={ __( 'Max width (px)', 'noortemplates' ) }
+							value={ boxedWidth }
+							onChange={ ( value ) =>
+								setAttributes( { boxedWidth: value } )
+							}
+							min={ 480 }
+							max={ 1800 }
+							step={ 10 }
+						/>
+					) }
 				</PanelBody>
 			</InspectorControls>
 

@@ -197,9 +197,9 @@ class Split_Tests_Page {
 					<tbody>
 						<?php foreach ( $products as $product ) : ?>
 							<?php
-							$stats     = Split_Test_Stats::get_stats( $product->ID );
-							$layout_a  = get_post( (int) get_post_meta( $product->ID, Layouts_Resolver::PRODUCT_META_KEY, true ) );
-							$layout_b  = get_post( (int) get_post_meta( $product->ID, Split_Test::VARIANT_B_META_KEY, true ) );
+							$stats    = Split_Test_Stats::get_stats( $product->ID );
+							$layout_a = get_post( (int) get_post_meta( $product->ID, Layouts_Resolver::PRODUCT_META_KEY, true ) );
+							$layout_b = get_post( (int) get_post_meta( $product->ID, Split_Test::VARIANT_B_META_KEY, true ) );
 							?>
 							<tr>
 								<td rowspan="2">

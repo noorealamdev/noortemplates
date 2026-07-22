@@ -11,6 +11,7 @@ import {
 	RangeControl,
 	ColorPalette,
 	BaseControl,
+	ToggleControl,
 } from '@wordpress/components';
 import { closeSmall } from '@wordpress/icons';
 
@@ -27,8 +28,15 @@ export const DEFAULT_CARD_RADIUS = 20;
 export const DEFAULT_CARD_PADDING = 28;
 
 export default function Edit( { attributes, setAttributes } ) {
-	const { items, columns, cardBackground, cardRadius, cardPadding } =
-		attributes;
+	const {
+		items,
+		columns,
+		cardBackground,
+		cardRadius,
+		cardPadding,
+		boxed,
+		boxedWidth,
+	} = attributes;
 	const [ colors = [] ] = useSettings( 'color.palette' );
 	const blockProps = useBlockProps( {
 		style: { '--noortemplates-feature-cards-columns': columns },
@@ -81,6 +89,37 @@ export default function Edit( { attributes, setAttributes } ) {
 						min={ 1 }
 						max={ 4 }
 					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Boxed width', 'noortemplates' ) }
+						checked={ boxed }
+						onChange={ ( value ) => setAttributes( { boxed: value } ) }
+						help={
+							boxed
+								? __(
+										'Constrained to a max width and centered.',
+										'noortemplates'
+								  )
+								: __(
+										'Stretches the full width of its container.',
+										'noortemplates'
+								  )
+						}
+					/>
+					{ boxed && (
+						<RangeControl
+							__nextHasNoMarginBottom
+							__next40pxDefaultSize
+							label={ __( 'Max width (px)', 'noortemplates' ) }
+							value={ boxedWidth }
+							onChange={ ( value ) =>
+								setAttributes( { boxedWidth: value } )
+							}
+							min={ 480 }
+							max={ 1800 }
+							step={ 10 }
+						/>
+					) }
 				</PanelBody>
 
 				<PanelBody title={ __( 'Card', 'noortemplates' ) }>
@@ -122,7 +161,13 @@ export default function Edit( { attributes, setAttributes } ) {
 			</InspectorControls>
 
 			<div { ...blockProps }>
-				<div className="noortemplates-feature-cards__list">
+				<div
+					className={
+						'noortemplates-feature-cards__list' +
+						( boxed ? ' is-boxed' : '' )
+					}
+					style={ boxed ? { maxWidth: boxedWidth } : undefined }
+				>
 					{ items.map( ( item, index ) => (
 						<div
 							className="noortemplates-feature-cards__item"

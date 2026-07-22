@@ -22,8 +22,15 @@
             "default": "Frequently Asked Questions"
         },
         "align": {
-            "type": "string",
-            "default": "full"
+            "type": "string"
+        },
+        "boxed": {
+            "type": "boolean",
+            "default": true
+        },
+        "boxedWidth": {
+            "type": "number",
+            "default": 800
         },
         "style": {
             "type": "object",

@@ -7,9 +7,19 @@
 	// that doesn't also happen to use a Heading block elsewhere.
 	.noortemplates-faq__title {
 		text-align: center;
+		// Without this, a theme's own heading color rules (e.g. Astra's
+		// `h1,h2,h3,h4,h5,h6{color:...}`) can win over the text color picked
+		// for this block, since that color is only ever applied to the
+		// block's own wrapper element, not this nested heading directly.
+		color: inherit;
 	}
 
 	.noortemplates-faq__accordion {
 		margin-top: 1.5rem;
+
+		&.is-boxed {
+			margin-left: auto;
+			margin-right: auto;
+		}
 	}
 }

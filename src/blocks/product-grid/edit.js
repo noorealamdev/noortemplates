@@ -35,6 +35,8 @@ export default function Edit( { attributes, setAttributes } ) {
 		showImage,
 		showPrice,
 		showAddToCart,
+		boxed,
+		boxedWidth,
 	} = attributes;
 
 	return (
@@ -118,6 +120,34 @@ export default function Edit( { attributes, setAttributes } ) {
 						min={ 1 }
 						max={ 4 }
 					/>
+					<ToggleControl
+						label={ __( 'Boxed width', 'noortemplates' ) }
+						checked={ boxed }
+						onChange={ ( value ) => setAttributes( { boxed: value } ) }
+						help={
+							boxed
+								? __(
+										'Constrained to a max width and centered.',
+										'noortemplates'
+								  )
+								: __(
+										'Stretches the full width of its container.',
+										'noortemplates'
+								  )
+						}
+					/>
+					{ boxed && (
+						<RangeControl
+							label={ __( 'Max width (px)', 'noortemplates' ) }
+							value={ boxedWidth }
+							onChange={ ( value ) =>
+								setAttributes( { boxedWidth: value } )
+							}
+							min={ 480 }
+							max={ 1800 }
+							step={ 10 }
+						/>
+					) }
 				</PanelBody>
 
 				<PanelBody title={ __( 'Content', 'noortemplates' ) }>

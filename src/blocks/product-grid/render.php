@@ -59,9 +59,22 @@ if ( 'latest' !== $noortemplates_relation && empty( $noortemplates_ids ) ) {
 	);
 }
 
-$noortemplates_wrapper = get_block_wrapper_attributes(
-	array( 'class' => 'columns-' . absint( $attributes['columns'] ) )
-);
+// Self-contained max-width instead of relying on the theme/template to
+// constrain block content — applied to this block's own wrapper (rather
+// than an inner div, like other blocks in this plugin) because that
+// wrapper is also the CSS grid container itself; an extra nested div would
+// separate `display: grid` from the item children it needs to apply to.
+$noortemplates_boxed       = ! isset( $attributes['boxed'] ) || (bool) $attributes['boxed'];
+$noortemplates_boxed_width = isset( $attributes['boxedWidth'] ) ? absint( $attributes['boxedWidth'] ) : 1200;
+
+$noortemplates_wrapper_args = array( 'class' => 'columns-' . absint( $attributes['columns'] ) );
+
+if ( $noortemplates_boxed ) {
+	$noortemplates_wrapper_args['class'] .= ' is-boxed';
+	$noortemplates_wrapper_args['style']  = 'max-width:' . $noortemplates_boxed_width . 'px';
+}
+
+$noortemplates_wrapper = get_block_wrapper_attributes( $noortemplates_wrapper_args );
 ?>
 <div <?php echo $noortemplates_wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped. ?>>
 	<?php if ( ! $noortemplates_query->have_posts() ) : ?>

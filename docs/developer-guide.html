@@ -302,6 +302,7 @@
         <li><a href="#rest-api">REST API</a></li>
         <li><a href="#hooks">Hooks reference</a></li>
         <li><a href="#licensing">Licensing &amp; the Pro gate</a></li>
+        <li><a href="#lock-a-feature">Worked example: locking a feature</a></li>
       </ul>
     </div>
 
@@ -605,6 +606,88 @@
         <span class="callout-icon">&#9888;</span>
         <p><code>ProControl</code> (the editor-side "PRO" badge component, see the Hero block's video background control) is <strong>UX only</strong>. It dims/labels a control in the block editor, but a determined user could still set a gated attribute directly — via the REST API, an imported JSON template, or hand-edited block markup. Every real gate has to be enforced again at the point the value is actually served or rendered: <code>Rest\Templates_Controller::get_template()</code> refuses Pro content server-side regardless of what the editor UI allowed; <code>Split_Test::has_active_test()</code> is the single choke-point every other Split Test code path calls through. A block that only checks <code>Gate</code> in its own <code>edit.js</code> and nowhere else is not actually gated.</p>
       </div>
+    </section>
+
+    <section class="doc-section" id="lock-a-feature">
+      <h2>Worked example: locking a feature</h2>
+      <p>Split Testing is the clearest real example in this codebase of a feature gated <em>correctly</em> — at every point it's actually reachable, not just in one obvious spot. Three steps, in order.</p>
+
+      <h3>1. Register the feature key</h3>
+      <p>Every gated feature gets one entry in <code>Gate::feature_keys()</code> — purely a registry/documentation list (nothing reads it to enforce anything), so admin UI, docs, and other developers can see at a glance what's gateable:</p>
+      <div class="code-block">
+        <div class="code-label">includes/Licensing/Gate.php</div>
+        <pre><code class="lang-php">public static function feature_keys() {
+    return array(
+        'split_test',            // A/B split testing between two Product Layouts.
+        'hero_video_background', // Video background on the Hero block.
+    );
+}</code></pre>
+      </div>
+      <p>This is the only step that's just bookkeeping. The next two are where the feature actually becomes locked.</p>
+
+      <h3>2. Gate the one real choke point — server-side, not the UI</h3>
+      <p>Find the single place in PHP where the feature's behavior actually happens, and check <code>Gate::has_feature()</code> there. For Split Testing, that's <code>Split_Test::has_active_test()</code> — every other Split Test code path (bucketing visitors, logging conversions, the results admin page) calls through this one method, so gating it here is enough to disable the feature's real effect everywhere at once:</p>
+      <div class="code-block">
+        <div class="code-label">includes/Layouts/Split_Test.php</div>
+        <pre><code class="lang-php">public function has_active_test( $product_id ) {
+    if ( ! Gate::has_feature( 'split_test' ) ) {
+        return false;
+    }
+
+    if ( '1' !== get_post_meta( $product_id, self::ENABLED_META_KEY, true ) ) {
+        return false;
+    }
+
+    $variant_a = (int) get_post_meta( $product_id, Resolver::PRODUCT_META_KEY, true );
+    $variant_b = (int) get_post_meta( $product_id, self::VARIANT_B_META_KEY, true );
+
+    return $this->is_published_layout( $variant_a ) && $this->is_published_layout( $variant_b );
+}</code></pre>
+      </div>
+      <div class="callout tip">
+        <span class="callout-icon">&#9432;</span>
+        <p>Do this step <strong>first</strong>, before touching any UI. If the real behavior is already refused server-side when unlicensed, a half-finished or even entirely missing admin UI can never accidentally leak the feature — the worst case is a confusing UI, not a bypassed gate.</p>
+      </div>
+
+      <h3>3. Gate the UI that configures/uses it</h3>
+      <p>Once the real gate exists, make the *admin experience* match it — show what's possible as an upsell rather than just hiding it. The "Product Page Template" meta box renders one of two branches depending on <code>Gate::has_feature('split_test')</code>: the real controls, or a disabled checkbox with a "Pro" badge and an upgrade link:</p>
+      <div class="code-block">
+        <div class="code-label">includes/Layouts/Meta_Box.php</div>
+        <pre><code class="lang-php">&lt;?php if ( Gate::has_feature( 'split_test' ) ) : ?&gt;
+    &lt;!-- the real checkbox, Variant B picker, traffic-split field --&gt;
+&lt;?php else : ?&gt;
+    &lt;p&gt;
+        &lt;label&gt;
+            &lt;input type="checkbox" disabled="disabled" /&gt;
+            Split test against a second layout
+            &lt;span style="...badge styles..."&gt;Pro&lt;/span&gt;
+        &lt;/label&gt;
+    &lt;/p&gt;
+    &lt;p class="description"&gt;
+        Split testing requires NoorTemplates Pro.
+        &lt;a href="&lt;?php echo esc_url( NOORTEMPLATES_CHECKOUT_URL ); ?&gt;"&gt;Upgrade to Pro&lt;/a&gt;
+    &lt;/p&gt;
+&lt;?php endif; ?&gt;</code></pre>
+      </div>
+      <p>The save handler applies the same check — <strong>skipping</strong> the save entirely when unlicensed, rather than treating "fields were disabled so nothing was posted" as "the user unchecked it":</p>
+      <div class="code-block">
+        <div class="code-label">includes/Layouts/Meta_Box.php</div>
+        <pre><code class="lang-php">// Without the split_test feature the fields are rendered disabled
+// (so nothing is posted for them) — skip entirely rather than
+// treat "not posted" as "user unchecked it", which would silently
+// wipe an existing split-test configuration just because the
+// license lapsed before someone next saved the product.
+if ( ! Gate::has_feature( 'split_test' ) ) {
+    return;
+}</code></pre>
+      </div>
+      <div class="callout warn">
+        <span class="callout-icon">&#9888;</span>
+        <p>That last detail matters as much as the gate itself: a lapsed license must never silently delete a merchant's existing configuration. Locking a feature means blocking new use of it, not destroying what was already there.</p>
+      </div>
+
+      <h3>Applying this to a JS-only (block editor) feature</h3>
+      <p>The Hero video background follows the identical three steps, just with an editor-side UI instead of a PHP admin screen: <code>hero_video_background</code> is registered in <code>feature_keys()</code>, the video-upload control is wrapped in <code>&lt;ProControl feature="hero_video_background"&gt;</code> (step 3's equivalent), and — because Hero is a <em>static</em> block with no PHP render step — there is currently <strong>no step 2</strong> for it. That gap is called out explicitly in <a href="#conventions">Conventions &amp; gotchas</a>: it's editor-UX-only until a real server-side check is added (a <code>render_block</code> filter, most likely), which is exactly the kind of gap step 2 exists to close for any feature that does have a real PHP-reachable choke point.</p>
     </section>
 
     <hr class="divider" />

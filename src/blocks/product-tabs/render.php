@@ -19,7 +19,20 @@ $product = wc_get_product( get_the_ID() ); // phpcs:ignore WordPress.NamingConve
 if ( ! $product ) {
 	return;
 }
+
+// Self-contained max-width instead of relying on the theme/template to
+// constrain block content — this block can land in templates that render
+// blocks without any width-limiting ancestor.
+$noortemplates_boxed       = ! isset( $attributes['boxed'] ) || (bool) $attributes['boxed'];
+$noortemplates_boxed_width = isset( $attributes['boxedWidth'] ) ? absint( $attributes['boxedWidth'] ) : 1200;
 ?>
 <div <?php echo get_block_wrapper_attributes(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped. ?>>
-	<?php woocommerce_output_product_data_tabs(); ?>
+	<div
+		class="noortemplates-product-tabs__inner<?php echo $noortemplates_boxed ? ' is-boxed' : ''; ?>"
+		<?php if ( $noortemplates_boxed ) : ?>
+			style="max-width:<?php echo esc_attr( $noortemplates_boxed_width ); ?>px"
+		<?php endif; ?>
+	>
+		<?php woocommerce_output_product_data_tabs(); ?>
+	</div>
 </div>

@@ -1,5 +1,10 @@
 .wp-block-noortemplates-accordion {
 
+	&.is-boxed {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
 	.wp-block-noortemplates-accordion-item {
 		overflow: hidden;
 		border: 1px solid #e0e0e0;
@@ -13,6 +18,11 @@
 	.noortemplates-accordion__heading {
 		margin: 0;
 		font-size: inherit;
+		// Without this, a theme's own heading color rules (e.g. a selector
+		// targeting every h3) win over this element's color, breaking
+		// inheritance for everything under it — including the toggle
+		// button and title, both already `color: inherit` further down.
+		color: inherit;
 	}
 
 	.noortemplates-accordion__toggle {
@@ -46,5 +56,12 @@
 
 	.noortemplates-accordion__panel {
 		padding: 0 16px 16px;
+
+		// The panel's own padding-bottom already provides the gap below
+		// the content — a paragraph's default margin-bottom on top of
+		// that stacks into visibly too much space under the last one.
+		p:last-child {
+			margin-bottom: 0;
+		}
 	}
 }

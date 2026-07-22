@@ -9,6 +9,7 @@ namespace NoorTemplates\Rest;
 
 use NoorTemplates\Traits\Singleton;
 use NoorTemplates\Templates\Repository;
+use NoorTemplates\Templates\Media_Sideloader;
 use NoorTemplates\Licensing\Gate;
 
 defined( 'ABSPATH' ) || exit;
@@ -129,6 +130,15 @@ class Templates_Controller {
 				__( 'This template requires NoorTemplates Pro.', 'noortemplates' ),
 				array( 'status' => 403 )
 			);
+		}
+
+		// Any image the content references (this plugin's own bundled
+		// samples, or a Cloud-source template's remote images) gets copied
+		// into this site's real Media Library before the content is handed
+		// to the editor, so imported content never depends on this plugin's
+		// files or a third-party server still being there later.
+		if ( ! empty( $template['content'] ) ) {
+			$template['content'] = Media_Sideloader::rewrite_content( $template['content'] );
 		}
 
 		return rest_ensure_response( $template );

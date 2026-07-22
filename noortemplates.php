@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       NoorTemplates
+ * Plugin Name:       Noor Templates
  * Description:       Build WooCommerce single product pages from premade templates, using blocks that wrap WooCommerce's own rendering.
- * Version:           1.1.0
+ * Version:           1.0.0
  * Requires at least: 6.6
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
@@ -17,14 +17,13 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin constants.
-define( 'NOORTEMPLATES_VERSION', '1.1.0' );
+define( 'NOORTEMPLATES_VERSION', '1.0.0' );
 define( 'NOORTEMPLATES_FILE', __FILE__ );
 define( 'NOORTEMPLATES_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NOORTEMPLATES_URL', plugin_dir_url( __FILE__ ) );
 define( 'NOORTEMPLATES_BASENAME', plugin_basename( __FILE__ ) );
 
-// Where Pro-only upgrade messages send the user — replace with the real
-define( 'NOORTEMPLATES_CHECKOUT_URL', 'https://example.com/replace-with-real-checkout-link' );
+define( 'NOORTEMPLATES_CHECKOUT_URL', 'https://checkout.freemius.com/plugin/35066/plan/57625/' );
 
 // Register the PSR-4 autoloader.
 require_once NOORTEMPLATES_DIR . 'includes/Autoloader.php';

@@ -17,6 +17,8 @@ export default function save( { attributes } ) {
 		textAlign,
 		headingFontSize,
 		subheadingFontSize,
+		boxed,
+		boxedWidth,
 	} = attributes;
 	const blockProps = useBlockProps.save( {
 		className: textAlign ? `has-text-align-${ textAlign }` : undefined,
@@ -51,28 +53,36 @@ export default function save( { attributes } ) {
 					} }
 				/>
 			) }
-			<RichText.Content
-				tagName="h1"
-				className="noortemplates-hero__heading"
-				style={
-					headingFontSize
-						? { fontSize: headingFontSize }
-						: undefined
+			<div
+				className={
+					'noortemplates-hero__content' +
+					( boxed ? ' is-boxed' : '' )
 				}
-				value={ heading }
-			/>
-			<RichText.Content
-				tagName="p"
-				className="noortemplates-hero__subheading"
-				style={
-					subheadingFontSize
-						? { fontSize: subheadingFontSize }
-						: undefined
-				}
-				value={ subheading }
-			/>
-			<div className="noortemplates-hero__actions">
-				<InnerBlocks.Content />
+				style={ boxed ? { maxWidth: boxedWidth } : undefined }
+			>
+				<RichText.Content
+					tagName="h1"
+					className="noortemplates-hero__heading"
+					style={
+						headingFontSize
+							? { fontSize: headingFontSize }
+							: undefined
+					}
+					value={ heading }
+				/>
+				<RichText.Content
+					tagName="p"
+					className="noortemplates-hero__subheading"
+					style={
+						subheadingFontSize
+							? { fontSize: subheadingFontSize }
+							: undefined
+					}
+					value={ subheading }
+				/>
+				<div className="noortemplates-hero__actions">
+					<InnerBlocks.Content />
+				</div>
 			</div>
 		</div>
 	);

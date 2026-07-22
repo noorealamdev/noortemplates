@@ -37,7 +37,7 @@ $noortemplates_review_count = array_sum( $noortemplates_rating_counts );
 $noortemplates_breakdown = array();
 
 for ( $noortemplates_star = 5; $noortemplates_star >= 1; $noortemplates_star-- ) {
-	$noortemplates_star_count               = isset( $noortemplates_rating_counts[ $noortemplates_star ] ) ? (int) $noortemplates_rating_counts[ $noortemplates_star ] : 0;
+	$noortemplates_star_count                       = isset( $noortemplates_rating_counts[ $noortemplates_star ] ) ? (int) $noortemplates_rating_counts[ $noortemplates_star ] : 0;
 	$noortemplates_breakdown[ $noortemplates_star ] = array(
 		'count'      => $noortemplates_star_count,
 		'percentage' => $noortemplates_review_count ? round( ( $noortemplates_star_count / $noortemplates_review_count ) * 100 ) : 0,
@@ -127,11 +127,13 @@ $noortemplates_boxed_width = isset( $attributes['boxedWidth'] ) ? absint( $attri
 			<div class="noortemplates-product-reviews__grid columns-<?php echo esc_attr( absint( $attributes['columns'] ) ); ?>">
 				<?php foreach ( $noortemplates_reviews as $noortemplates_review ) : ?>
 					<?php
-					echo \NoorTemplates\Blocks\Product_Reviews_Renderer::render_card( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- self-escaping.
+					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- render_card() escapes its own output internally.
+					echo \NoorTemplates\Blocks\Product_Reviews_Renderer::render_card(
 						$noortemplates_review['comment'],
 						$noortemplates_review['rating'],
 						$noortemplates_ratings_enabled
 					);
+					// phpcs:enable
 					?>
 				<?php endforeach; ?>
 			</div>
@@ -236,6 +238,7 @@ $noortemplates_boxed_width = isset( $attributes['boxedWidth'] ) ? absint( $attri
 
 						$noortemplates_comment_form['comment_field'] .= '<p class="comment-form-comment"><label for="comment">' . esc_html__( 'Your review', 'noortemplates' ) . '&nbsp;<span class="required">*</span></label><textarea id="comment" name="comment" cols="45" rows="8" required></textarea></p>';
 
+						// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- intentionally reusing WooCommerce's own review-form filter name (not a new hook) so plugins/themes that already customize the native review form via this filter keep working here too.
 						comment_form( apply_filters( 'woocommerce_product_review_comment_form_args', $noortemplates_comment_form ) );
 						?>
 					</div>

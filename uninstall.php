@@ -33,7 +33,8 @@ delete_post_meta_by_key( '_noortemplates_split_enabled' );
 delete_post_meta_by_key( '_noortemplates_split_ratio' );
 
 global $wpdb;
-$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'noortemplates_split_stats' ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- fixed table name, not user input.
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.NotPrepared -- one-time cleanup of this plugin's own table on uninstall; $wpdb->prefix is a trusted constant, not user input.
+$wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . 'noortemplates_split_stats' );
 
 $noortemplates_terms = get_terms(
 	array(

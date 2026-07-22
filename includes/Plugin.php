@@ -44,8 +44,6 @@ class Plugin {
 		}
 
 		$this->init_services();
-
-		add_action( 'init', array( $this, 'load_textdomain' ) );
 	}
 
 	/**
@@ -117,14 +115,5 @@ class Plugin {
 		 * @param Plugin $plugin The plugin instance.
 		 */
 		do_action( 'noortemplates/loaded', $this );
-	}
-
-	/**
-	 * Loads the plugin text domain for translations.
-	 *
-	 * @return void
-	 */
-	public function load_textdomain() {
-		load_plugin_textdomain( 'noortemplates', false, dirname( NOORTEMPLATES_BASENAME ) . '/languages' );
 	}
 }

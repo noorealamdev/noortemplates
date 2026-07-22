@@ -117,11 +117,15 @@ $noortemplates_boxed_width = isset( $attributes['boxedWidth'] ) ? absint( $attri
 		<?php if ( $noortemplates_multiple ) : ?>
 			<div class="noortemplates-review-carousel__dots">
 				<?php foreach ( $noortemplates_ordered as $noortemplates_index => $noortemplates_comment ) : ?>
+					<?php
+					/* translators: %d: review number in the carousel. */
+					$noortemplates_dot_label = sprintf( __( 'Go to review %d', 'noortemplates' ), $noortemplates_index + 1 );
+					?>
 					<button
 						type="button"
 						class="noortemplates-review-carousel__dot<?php echo 0 === $noortemplates_index ? ' is-active' : ''; ?>"
 						data-slide-index="<?php echo esc_attr( $noortemplates_index ); ?>"
-						aria-label="<?php echo esc_attr( sprintf( __( 'Go to review %d', 'noortemplates' ), $noortemplates_index + 1 ) ); ?>"
+						aria-label="<?php echo esc_attr( $noortemplates_dot_label ); ?>"
 					></button>
 				<?php endforeach; ?>
 			</div>

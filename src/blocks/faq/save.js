@@ -1,7 +1,7 @@
 import { useBlockProps, InnerBlocks, RichText } from '@wordpress/block-editor';
 
 export default function save( { attributes } ) {
-	const { title } = attributes;
+	const { title, boxed, boxedWidth } = attributes;
 	const blockProps = useBlockProps.save();
 
 	return (
@@ -11,7 +11,13 @@ export default function save( { attributes } ) {
 				className="noortemplates-faq__title"
 				value={ title }
 			/>
-			<div className="noortemplates-faq__accordion">
+			<div
+				className={
+					'noortemplates-faq__accordion' +
+					( boxed ? ' is-boxed' : '' )
+				}
+				style={ boxed ? { maxWidth: boxedWidth } : undefined }
+			>
 				<InnerBlocks.Content />
 			</div>
 		</div>

@@ -3,8 +3,9 @@ import {
 	useBlockProps,
 	useInnerBlocksProps,
 	RichText,
+	InspectorControls,
 } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
+import { Button, PanelBody, ToggleControl, RangeControl } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { plus } from '@wordpress/icons';
@@ -14,7 +15,8 @@ const TEMPLATE = [
 	[ 'noortemplates/tab', { title: 'Tab 2' } ],
 ];
 
-export default function Edit( { clientId } ) {
+export default function Edit( { clientId, attributes, setAttributes } ) {
+	const { boxed, boxedWidth } = attributes;
 	const tabs = useSelect(
 		( select ) => select( 'core/block-editor' ).getBlocks( clientId ),
 		[ clientId ]
@@ -38,7 +40,10 @@ export default function Edit( { clientId } ) {
 	const { selectBlock, updateBlockAttributes, insertBlock } =
 		useDispatch( 'core/block-editor' );
 
-	const blockProps = useBlockProps();
+	const blockProps = useBlockProps( {
+		className: boxed ? 'is-boxed' : undefined,
+		style: boxed ? { maxWidth: boxedWidth } : undefined,
+	} );
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'noortemplates-tabs__panels' },
 		{
@@ -62,6 +67,38 @@ export default function Edit( { clientId } ) {
 
 	return (
 		<div { ...blockProps }>
+			<InspectorControls>
+				<PanelBody title={ __( 'Layout', 'noortemplates' ) } initialOpen={ false }>
+					<ToggleControl
+						label={ __( 'Boxed width', 'noortemplates' ) }
+						checked={ boxed }
+						onChange={ ( value ) => setAttributes( { boxed: value } ) }
+						help={
+							boxed
+								? __(
+										'Constrained to a max width and centered.',
+										'noortemplates'
+								  )
+								: __(
+										'Stretches the full width of its container.',
+										'noortemplates'
+								  )
+						}
+					/>
+					{ boxed && (
+						<RangeControl
+							label={ __( 'Max width (px)', 'noortemplates' ) }
+							value={ boxedWidth }
+							onChange={ ( value ) =>
+								setAttributes( { boxedWidth: value } )
+							}
+							min={ 480 }
+							max={ 1800 }
+							step={ 10 }
+						/>
+					) }
+				</PanelBody>
+			</InspectorControls>
 			<div className="noortemplates-tabs__list">
 				{ tabs.map( ( tab ) => (
 					/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */

@@ -358,13 +358,19 @@ class Manager {
 					continue;
 				}
 
-				$name = basename( $file, '.json' );
+				$raw_name = basename( $file, '.json' );
+				// The REST route matching a single template only accepts
+				// `[a-z0-9_-]+` — a filename with spaces or uppercase (e.g.
+				// "Supplement Product Layout.json") would otherwise produce
+				// a name that route can never match, 404ing every time that
+				// specific template is fetched.
+				$name = sanitize_title( $raw_name );
 
-				$pattern['title']       = isset( $pattern['title'] ) ? $pattern['title'] : $name;
+				$pattern['title']       = isset( $pattern['title'] ) ? $pattern['title'] : $raw_name;
 				$pattern['description'] = isset( $pattern['description'] ) ? $pattern['description'] : '';
 				$pattern['category']    = isset( $pattern['category'] ) ? $pattern['category'] : $pattern['type'];
 				$pattern['is_pro']      = $dir_is_pro || ! empty( $pattern['is_pro'] );
-				$pattern['thumbnail']   = isset( $pattern['thumbnail'] ) ? $pattern['thumbnail'] : $this->guess_thumbnail( $dir, $name );
+				$pattern['thumbnail']   = isset( $pattern['thumbnail'] ) ? $pattern['thumbnail'] : $this->guess_thumbnail( $dir, $raw_name );
 				$pattern['categories']  = array( self::PATTERN_CATEGORY );
 
 				$patterns[ $name ] = $pattern;

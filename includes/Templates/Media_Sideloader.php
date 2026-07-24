@@ -30,6 +30,18 @@ class Media_Sideloader {
 	const SOURCE_META_KEY = '_noortemplates_source_url';
 
 	/**
+	 * Marks a bundled-asset reference inside a template's `content`, e.g.
+	 * `noortemplates-bundled-asset:templates/library/assets/photo.jpg`. Not a
+	 * real URL scheme — a portable placeholder resolved to a path relative to
+	 * this plugin's own directory, so it works identically on every site
+	 * regardless of domain, unlike an absolute plugins_url() reference (which
+	 * would only ever match on the exact site it was authored on). Never
+	 * rendered as-is: rewrite_content() always replaces it before the content
+	 * reaches the editor.
+	 */
+	const BUNDLED_ASSET_SCHEME = 'noortemplates-bundled-asset:';
+
+	/**
 	 * Rewrites every external image URL in a template's content to point at
 	 * a real, local Media Library attachment.
 	 *
@@ -66,6 +78,18 @@ class Media_Sideloader {
 				$content
 			);
 
+			// Core Image/Media & Text blocks: the original attachment id also
+			// shows up as `"mediaId":N` in the block comment and a
+			// `wp-image-N` class on the <img> itself. Find the id tied to
+			// *this* <img src="...">, so both get swapped for the new
+			// attachment's real id too — otherwise they'd keep pointing at
+			// an id that means nothing (or belongs to something else) here.
+			if ( preg_match( '/<img[^>]*src="' . preg_quote( $url, '/' ) . '"[^>]*class="[^"]*wp-image-(\d+)/', $content, $img_match ) ) {
+				$old_id  = $img_match[1];
+				$content = preg_replace( '/\bwp-image-' . $old_id . '\b/', 'wp-image-' . $sideloaded['id'], $content );
+				$content = preg_replace( '/"mediaId":' . $old_id . '\b/', '"mediaId":' . $sideloaded['id'], $content );
+			}
+
 			$content = str_replace( $url, $sideloaded['url'], $content );
 		}
 
@@ -73,14 +97,19 @@ class Media_Sideloader {
 	}
 
 	/**
-	 * Finds every image URL in the content that isn't already local to this
-	 * site's own uploads directory.
+	 * Finds every image reference in the content that isn't already local to
+	 * this site's own uploads directory — either a genuine remote URL, or
+	 * this plugin's own `noortemplates-bundled-asset:` placeholder.
 	 *
 	 * @param string $content Serialized block HTML.
 	 * @return string[]
 	 */
 	private static function find_external_urls( $content ) {
-		preg_match_all( '/https?:\/\/[^"\'\s)]+\.(?:jpe?g|png|gif|webp|svg)/i', $content, $matches );
+		preg_match_all(
+			'/(?:https?:\/\/[^"\'\s)]+|' . preg_quote( self::BUNDLED_ASSET_SCHEME, '/' ) . '[^"\'\s)]+)\.(?:jpe?g|png|gif|webp|svg)/i',
+			$content,
+			$matches
+		);
 
 		$upload_base_url = wp_get_upload_dir()['baseurl'];
 
@@ -119,19 +148,26 @@ class Media_Sideloader {
 	}
 
 	/**
-	 * Resolves a bundled-asset URL (this plugin's own files) to its
+	 * Resolves a bundled-asset reference (this plugin's own files) to its
 	 * filesystem path, so it can be read directly instead of requesting it
-	 * over HTTP from itself.
+	 * over HTTP — which, for a placeholder like `noortemplates-bundled-asset:`,
+	 * has no real host to even request from in the first place.
 	 *
-	 * @param string $url Source image URL.
+	 * @param string $url Source image reference.
 	 * @return string|null
 	 */
 	private static function local_file_for_url( $url ) {
-		if ( 0 !== strpos( $url, NOORTEMPLATES_URL ) ) {
+		if ( 0 === strpos( $url, self::BUNDLED_ASSET_SCHEME ) ) {
+			$relative = substr( $url, strlen( self::BUNDLED_ASSET_SCHEME ) );
+		} elseif ( 0 === strpos( $url, NOORTEMPLATES_URL ) ) {
+			// Back-compat: a template built against this exact site's own
+			// plugins_url() rather than the portable placeholder above.
+			$relative = substr( $url, strlen( NOORTEMPLATES_URL ) );
+		} else {
 			return null;
 		}
 
-		$path = NOORTEMPLATES_DIR . substr( $url, strlen( NOORTEMPLATES_URL ) );
+		$path = NOORTEMPLATES_DIR . $relative;
 
 		return is_readable( $path ) ? $path : null;
 	}
